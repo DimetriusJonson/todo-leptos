@@ -28,7 +28,7 @@ pub fn TaskPage() -> impl IntoView {
 
     view! {
         <div class="container p-4">
-            <div class="message">
+            <div class="message is-dark">
                 <div class="message-header">
                     <p>{"Сделать"}</p>
                 </div>
@@ -66,7 +66,7 @@ pub fn TaskPage() -> impl IntoView {
 
                                 <div class="buttons">
                                     <ButtonLink
-                                        class_name="is-light is-size-7-mobile".to_owned()
+                                        class_name="is-primary is-size-7-mobile".to_owned()
                                         href={TaskRoutes::edit_url(task.id.unwrap_or_default())}
                                         label="Изменить".to_owned()
                                         loading=None
@@ -75,7 +75,7 @@ pub fn TaskPage() -> impl IntoView {
                                     <ActionForm action=delete_task>
                                         <input type="hidden" name="id" value={task.id.unwrap_or_default()} />
                                         <Button
-                                            class_name="is-danger is-size-7-mobile".to_owned()
+                                            class_name="is-danger is-light is-size-7-mobile".to_owned()
                                             label="Удалить".to_owned()
                                             loading=api_in_progress
                                             disabled=api_in_progress
