@@ -1,5 +1,6 @@
 use app::common::DbPool;
-use sqlx::{migrate::MigrateDatabase, Sqlite, SqlitePool};
+use sqlx::migrate::MigrateDatabase;
+use sqlx::{Sqlite, SqlitePool};
 
 /*
 #[cfg(feature = "ssr")]
@@ -24,10 +25,7 @@ pub async fn create_pool() -> DbPool {
 pub async fn create_pool() -> DbPool {
     let database_url = std::env::var("DATABASE_URL").expect("no database url specify");
     println!("database_url={}", database_url);
-    if !Sqlite::database_exists(&database_url)
-        .await
-        .unwrap_or(false)
-    {
+    if !Sqlite::database_exists(&database_url).await.unwrap_or(false) {
         println!("Creating database {}", database_url);
         match Sqlite::create_database(&database_url).await {
             Ok(_) => println!("Create db success"),
@@ -39,10 +37,10 @@ pub async fn create_pool() -> DbPool {
 
     let db = SqlitePool::connect(&database_url).await.unwrap();
 
-    sqlx::migrate!("./../migrations/sqlite")
-        .run(&db)
-        .await
-        .expect("migrations failed");
+    /*sqlx::migrate!("./../migrations/sqlite")
+    .run(&db)
+    .await
+    .expect("migrations failed");*/
 
     db
 }
