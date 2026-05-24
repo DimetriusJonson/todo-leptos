@@ -58,3 +58,9 @@ bin-features = []
 bin-default-features = false
 lib-features = ["hydrate"]
 lib-default-features = false
+
+# [Optional] Command to use when running end2end tests. It will run in the end2end dir.
+#   [Windows] for non-WSL use "npx.cmd playwright test"
+#   This binary name can be checked in Powershell with Get-Command npx
+end2end-cmd = "npx playwright test"
+end2end-dir = "end2end"

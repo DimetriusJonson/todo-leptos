@@ -1,5 +1,5 @@
 use leptos::prelude::*;
-use leptos_meta::{MetaTags, Stylesheet, provide_meta_context};
+use leptos_meta::{MetaTags, Stylesheet, Title, provide_meta_context};
 use leptos_router::components::{Outlet, ParentRoute, Route, Router, Routes};
 use leptos_router::{StaticSegment, path};
 
@@ -43,6 +43,8 @@ pub fn App() -> impl IntoView {
         // id=leptos means cargo-leptos will hot-reload this stylesheet
         <Stylesheet id="bulma" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css" />
         <Stylesheet id="leptos" href="/pkg/todo_leptos.css" />
+
+        <Title text="TODO"/>
 
         <section class="section p-0">
             <div class="is-paddingless">

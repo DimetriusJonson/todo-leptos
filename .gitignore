@@ -20,3 +20,7 @@ rustc-ice-*.*
 # Tauri
 src-tauri/gen/
 src-tauri/target/
+
+node_modules
+package-lock.json
+
