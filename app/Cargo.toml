@@ -1,0 +1,64 @@
+[package]
+name = "app"
+version = "0.1.0"
+edition = "2024"
+resolver = "2"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+leptos_ui.workspace = true
+icons.workspace = true
+
+anyhow.workspace = true
+console_error_panic_hook.workspace = true
+console_log.workspace = true
+dotenv.workspace = true
+http.workspace = true
+leptos.workspace = true
+leptos_meta.workspace = true
+leptos_router.workspace = true
+log.workspace = true
+serde.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+uuid.workspace = true
+web-sys.workspace = true
+wasm-bindgen = { workspace = true }
+validator.workspace=true
+chrono.workspace=true
+serde_json.workspace=true
+regex.workspace=true
+
+axum = { workspace = true, optional = true }
+leptos_axum = { workspace = true, optional = true }
+sqlx = { workspace = true, optional = true }
+tokio = { workspace = true, optional = true }
+tower = { workspace = true, optional = true }
+tower-http = { workspace = true, optional = true }
+jsonwebtoken = { workspace = true, optional = true }
+bcrypt = { workspace = true, optional = true }
+axum-extra = { workspace = true, optional = true }
+
+
+[features]
+default = ["csr"]
+csr = ["leptos/csr"]
+hydrate = ["leptos/hydrate"]
+ssr = [
+    "dep:axum",
+    "dep:leptos_axum",
+    "dep:sqlx",
+    "dep:tokio",
+    "dep:tower",
+    "dep:tower-http",
+    "dep:jsonwebtoken",
+    "dep:bcrypt",
+    "dep:axum-extra",
+    "leptos/ssr",
+    "leptos_meta/ssr",
+    "leptos_router/ssr",
+]

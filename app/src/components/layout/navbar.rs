@@ -1,0 +1,121 @@
+use leptos::prelude::*;
+use leptos_router::hooks::use_query_map;
+
+use crate::{
+    components::{
+        layout::message_banner::{Messages, show_info},
+        ui::{button::Button, button_link::ButtonLink},
+    },
+    domain::{home::routing::routes::HomeRoutes, user::{
+        model::user::User, routing::routes::UserRoutes, user_services::{Logout, auth_data}
+    }},
+};
+
+#[component]
+pub fn Navbar() -> impl IntoView {
+    let (nav_links_active, set_nav_links_active) = signal(true);
+
+    let messages = use_context::<Messages>().expect("Cant get messages context!");
+
+    let logout = ServerAction::<Logout>::new();
+
+    let query_map = use_query_map();
+    let auth = move || query_map.with(|m| m.get("auth"));
+
+    let user_resource = Resource::new(auth, |_s| async move { auth_data().await });
+
+    let (user, set_user) = signal(User::default());
+    provide_context(user);
+
+    Effect::new(move |_| {
+        set_nav_links_active.set(false);
+        if let Some(Ok(loaded_user)) = user_resource.get() {
+            set_user.set(loaded_user)
+        }
+
+        if let Some(Ok(_)) = logout.value().get() {
+            show_info("Вы вышли!".to_owned(), messages);
+            logout.clear();
+        }
+    });
+
+    let api_in_progress = Signal::derive(move || logout.pending().get());
+
+    view! {
+        <nav class="navbar is-primary" aria-label="main navigation">
+            <div class="navbar-brand">
+                <a
+                    class="navbar-item is-size-3 has-text-weight-extrabold is-family-code mx-1"
+                    href=HomeRoutes::base_url()>{HomeRoutes::label()}</a>
+
+                <a
+                    role="button"
+                    class="navbar-burger"
+                    aria-label="menu"
+                    aria-expanded="false"
+                    on:click=move |_| set_nav_links_active.set(!nav_links_active.get())
+                    href=HomeRoutes::base_url()>
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                </a>
+            </div>
+
+            <div
+                class:is-active=move || nav_links_active.get()
+                class={"navbar-menu"}
+                id="nav-links"
+            >
+                <div class="navbar-start">
+                    <div class="navbar-item">
+                        <ButtonLink label="Пользователи".to_owned() href="/users".to_owned() loading=None/>
+                    </div>
+                </div>
+
+                <div class="navbar-end">
+                    <div class="buttons">
+                         { move || {
+                                if let Some(user_name)=user.get().username {
+                                    view! {
+                                        <div class="navbar-item">
+                                            <ActionForm action=logout>
+                                                <Button
+                                                    class_name="is-warning is-light".to_owned()
+                                                    label={format!("Выйти {}", user_name)}
+                                                    loading=api_in_progress
+                                                    disabled=api_in_progress
+                                                    on_click=move |_| {}
+                                                />
+                                            </ActionForm>
+                                        </div>
+                                    }.into_any()
+                                } else {
+                                    view! {
+                                        <div class="navbar-item">
+                                                <ButtonLink
+                                                    class_name="button is-warning is-soft is-rounded".to_owned()
+                                                    label="Создать пользователя".to_owned()
+                                                    href=UserRoutes::create_url().to_owned()
+                                                    loading=None
+                                                />
+                                            </div>
+                                            <div class="navbar-item">
+                                                <ButtonLink
+                                                    class_name="is-light".to_owned()
+                                                    label="Войти".to_owned()
+                                                    href=UserRoutes::login_url().to_owned()
+                                                    loading=None
+                                                />
+                                            </div>
+                                    }.into_any()
+                                }
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+    }
+}

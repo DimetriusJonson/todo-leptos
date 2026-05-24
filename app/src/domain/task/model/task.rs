@@ -1,0 +1,79 @@
+use std::cmp::Ordering;
+use std::sync::OnceLock;
+
+use chrono::Utc;
+use regex::Regex;
+use serde::{Deserialize, Serialize};
+use validator::Validate;
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default, Validate)]
+#[cfg_attr(feature = "ssr", derive(sqlx::FromRow))]
+pub struct Task {
+    pub id: Option<i64>,
+    #[validate(required, regex(path = title_regex(), message="Разрешены только буквы и цифры и не менее 3-х символов."))]
+    pub title: Option<String>,
+    pub description: Option<String>,
+    #[validate(required)]
+    pub priority: Option<String>,
+    pub completed_at: Option<String>,
+}
+
+impl Task {
+    pub fn fix_completed_at(&mut self) -> &mut Self {
+        if let Some(completed_at) = &self.completed_at {
+            if completed_at == "on" || completed_at == "true" || completed_at == "checked" {
+                self.completed_at = Some(Utc::now().fixed_offset().to_rfc2822());
+            }
+        }
+
+        self
+    }
+
+    pub fn priority_name(&self) -> String {
+        match &self.priority {
+            Some(priority) => Self::priority_by_name(priority),
+            None => "".to_owned(),
+        }
+    }
+
+    pub fn priority_by_name(value: &str) -> String {
+        let res = match value {
+            "C" => "Критический",
+            "H" => "Высокий",
+            "N" => "Нормальный",
+            "L" => "Низкий",
+            _ => "",
+        };
+
+        res.to_owned()
+    }
+}
+
+pub fn title_regex() -> &'static Regex {
+    static RE_POSTAL_CODE: OnceLock<Regex> = OnceLock::new();
+    RE_POSTAL_CODE.get_or_init(|| Regex::new("^[А-Яа-яA-Za-z0-9 ]{3,}$").unwrap())
+}
+
+pub fn filter_task(task: &Task, filter: &Option<String>) -> bool {
+    if let Some(filter) = filter {
+        return match filter.as_str() {
+            "Completed" => task.completed_at.is_some(),
+            "Uncompleted" => task.completed_at.is_none(),
+            _ => true,
+        };
+    }
+
+    true
+}
+
+pub fn sort_task(task1: &Task, task2: &Task, sort_kind: &Option<String>) -> Ordering {
+    if let Some(sort_kind) = sort_kind {
+        return match sort_kind.as_str() {
+            "Title" => task1.title.cmp(&task2.title),
+            "Priority" => task1.priority_name().cmp(&task2.priority_name()),
+            _ => task1.id.cmp(&task2.id),
+        };
+    }
+
+    task1.id.cmp(&task2.id)
+}
