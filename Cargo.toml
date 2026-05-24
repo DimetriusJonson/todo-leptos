@@ -41,6 +41,9 @@ regex = "1.12.3"
 
 
 [[workspace.metadata.leptos]]
+# The name used by wasm-bindgen/cargo-leptos for the JS/WASM bundle. Defaults to the crate name
+output-name = "todo_leptos"
+
 name = "todo_leptos"
 bin-package = "server"
 lib-package = "app"
