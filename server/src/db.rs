@@ -37,6 +37,8 @@ pub async fn create_pool() -> DbPool {
 
     let db = SqlitePool::connect(&database_url).await.unwrap();
 
+    println!("db successfully initialized!");
+
     /*sqlx::migrate!("./../migrations/sqlite")
     .run(&db)
     .await
