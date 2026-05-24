@@ -45,7 +45,7 @@ async fn main() -> anyhow::Result<()> {
     dotenv().ok();
     dotenvy::from_filename_override(env_file_name).ok();
 
-    let pool = create_pool().await;
+    let pool = create_pool().await?;
 
     println!("init listener on http://{}", &addr);
     let app = build_app_router(conf, pool).await?;

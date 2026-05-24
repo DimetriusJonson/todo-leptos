@@ -22,7 +22,7 @@ pub async fn create_pool() -> DbPool {
 }
  */
 
-pub async fn create_pool() -> DbPool {
+pub async fn create_pool() -> Result<DbPool, sqlx::Error> {
     let database_url = std::env::var("DATABASE_URL").expect("no database url specify");
     println!("database_url={}", database_url);
     if !Sqlite::database_exists(&database_url).await.unwrap_or(false) {
@@ -35,7 +35,7 @@ pub async fn create_pool() -> DbPool {
         println!("Database already exists");
     }
 
-    let db = SqlitePool::connect(&database_url).await.unwrap();
+    let db = SqlitePool::connect(&database_url).await?;
 
     println!("db successfully initialized!");
 
@@ -44,5 +44,5 @@ pub async fn create_pool() -> DbPool {
     .await
     .expect("migrations failed");*/
 
-    db
+    Ok(db)
 }
