@@ -39,10 +39,10 @@ pub async fn create_pool() -> Result<DbPool, sqlx::Error> {
 
     println!("db successfully initialized!");
 
-    /*sqlx::migrate!("./../migrations/sqlite")
+    sqlx::migrate!("migrations/sqlite")
     .run(&db)
     .await
-    .expect("migrations failed");*/
+    .expect("migrations failed");
 
     Ok(db)
 }
