@@ -53,7 +53,7 @@ pub async fn get_tasks() -> Result<Vec<Task>, ServerFnError> {
 
     if let Some(user) = get_current_user(false).await? {
         let app_state = use_app_state()?;
-        let mut tasks =
+        let tasks =
             get_tasks_from_db(&app_state.pool, user.id).await.map_err(ServerFnError::new)?;
 
         return Ok(tasks);
