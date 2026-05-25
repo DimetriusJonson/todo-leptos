@@ -4,7 +4,6 @@ use std::env;
 
 use dotenv::dotenv;
 use leptos::prelude::*;
-use tracing::info;
 use tracing_log::LogTracer;
 use tracing_subscriber::{EnvFilter, FmtSubscriber};
 

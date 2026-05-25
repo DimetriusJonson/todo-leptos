@@ -6,7 +6,6 @@ use leptos_router::{StaticSegment, path};
 use crate::components::layout::message_banner::MessageBanner;
 use crate::components::layout::navbar::Navbar;
 use crate::domain::home::routing::home_page::HomePage;
-use crate::domain::home::routing::routes::HomeRoutes;
 use crate::domain::task::routing::routes::TaskRoutes;
 use crate::domain::task::routing::task_edit_page::TaskEditPage;
 use crate::domain::task::routing::task_page::TaskPage;
@@ -39,40 +38,40 @@ pub fn App() -> impl IntoView {
     provide_meta_context();
 
     view! {
-            // injects a stylesheet into the document <head>
-            // id=leptos means cargo-leptos will hot-reload this stylesheet
-            <Stylesheet id="bulma" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css" />
-            <Stylesheet id="leptos" href="/pkg/todo_leptos.css" />
+        // injects a stylesheet into the document <head>
+        // id=leptos means cargo-leptos will hot-reload this stylesheet
+        <Stylesheet id="bulma" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css" />
+        <Stylesheet id="leptos" href="/pkg/todo_leptos.css" />
 
-            <Title text="TODO"/>
+        <Title text="TODO"/>
 
-            <section class="section p-0">
-                <div class="is-paddingless">
-                    <Router>
-                        <main>
-                            <MessageBanner />
-                            <Navbar />
-                            <Routes fallback=|| "Page not found.".into_view()>
-                                <ParentRoute path=path!("/") view=Outlet>
-    /*
-                                    <ParentRoute path=StaticSegment(UserRoutes::base_segment()) view=Outlet>
-                                        <Route path=StaticSegment(UserRoutes::create_segment()) view=CreateUserPage />
-                                        <Route path=StaticSegment(UserRoutes::login_segment()) view=LoginPage />
-                                    </ParentRoute>
-    */
-                                    <ParentRoute path=StaticSegment(TaskRoutes::base_segment()) view=Outlet>
-                                        <Route path=StaticSegment(TaskRoutes::create_segment()) view=TaskEditPage />
-                                        <Route path=path!(":id") view=TaskPage />
-                                        <Route path=path!(":id/edit") view=TaskEditPage />
-                                    </ParentRoute>
+        <section class="section p-0">
+            <div class="is-paddingless">
+                <Router>
+                    <main>
+                        <MessageBanner />
+                        <Navbar />
+                        <Routes fallback=|| "Page not found.".into_view()>
+                            <ParentRoute path=path!("/") view=Outlet>
 
-                                    <Route path=path!("") view=HomePage />
-
+                                <ParentRoute path=StaticSegment(UserRoutes::base_segment()) view=Outlet>
+                                    <Route path=StaticSegment(UserRoutes::create_segment()) view=CreateUserPage />
+                                    <Route path=StaticSegment(UserRoutes::login_segment()) view=LoginPage />
                                 </ParentRoute>
-                            </Routes>
-                        </main>
-                    </Router>
-                </div>
-            </section>
-        }
+
+                                <ParentRoute path=StaticSegment(TaskRoutes::base_segment()) view=Outlet>
+                                    <Route path=StaticSegment(TaskRoutes::create_segment()) view=TaskEditPage />
+                                    <Route path=path!(":id") view=TaskPage />
+                                    <Route path=path!(":id/edit") view=TaskEditPage />
+                                </ParentRoute>
+
+                                <Route path=path!("") view=HomePage />
+
+                            </ParentRoute>
+                        </Routes>
+                    </main>
+                </Router>
+            </div>
+        </section>
+    }
 }
