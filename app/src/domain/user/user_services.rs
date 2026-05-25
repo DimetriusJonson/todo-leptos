@@ -180,7 +180,7 @@ pub async fn login(params: LoginParams) -> Result<User, ServerFnError> {
             }
             leptos_axum::redirect(&HomeRoutes::base_url_with_params(1));
 
-            Ok(user)
+            Ok(User { password: None, ..user })
         } else {
             Err(ServerFnError::new("Неверное имя пользователя или пароль!"))
         }
