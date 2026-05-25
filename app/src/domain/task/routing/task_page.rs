@@ -35,7 +35,7 @@ pub fn TaskPage() -> impl IntoView {
 
                 <div class="message-body">
                     <Suspense
-                        fallback=move || view! { <p>"Loading..."</p> }
+                        /*fallback=move || view! { <p>"Loading..."</p> }*/
                         >
                         {move || Suspend::new(async move {
                             let task = task_resource.await.unwrap();

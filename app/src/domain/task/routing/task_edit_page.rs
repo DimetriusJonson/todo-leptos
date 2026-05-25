@@ -48,9 +48,9 @@ pub fn TaskEditPage() -> impl IntoView {
 
     view! {
         <div class="container p-4">
-            <Suspense fallback=move || {
+            <Suspense /*fallback=move || {
                 view! { <p>"Loading..."</p> }
-            }>
+            }*/>
                 {move || Suspend::new(async move {
                     let task = if id().is_some() { task_resource.await.unwrap() } else { Task::default() };
                     let priorities = priorities_resource.await.ok();

@@ -31,9 +31,9 @@ pub fn TasksPanel() -> impl IntoView {
 
     view! {
             <div class="container is-size-7-mobile pt-5">
-                <Suspense fallback=move || {
+                <Suspense /*fallback=move || {
                     view! { <p>"Loading..."</p> }
-                }>
+                }*/>
                     {move || Suspend::new(async move {
                         let filter_options = filter_options_resource.await.ok();
                         let sort_options = sort_options_resource.await.ok();
