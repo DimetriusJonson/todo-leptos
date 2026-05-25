@@ -5,8 +5,8 @@ pub fn Button(
     #[prop(optional)] id: i32,
     label: String,
     #[prop(optional)] class_name: String,
-    #[prop(optional)] loading: Signal<bool>,
-    #[prop(optional)] disabled: Signal<bool>,
+    loading: impl Fn() -> bool + Send + Sync + 'static,
+    disabled: impl Fn() -> bool + Send + Sync + 'static,
     on_click: impl FnMut(MouseEvent) + 'static,
 ) -> impl IntoView {
     let button_element: NodeRef<html::Button> = NodeRef::new();

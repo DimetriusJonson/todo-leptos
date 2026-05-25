@@ -131,6 +131,7 @@ pub fn TaskEditForm(
                             label="Сохранить".to_owned()
                             loading=api_in_progress
                             on_click=move |_| {}
+                            disabled=api_in_progress
                         />
                     </div>
                     <div class="control">

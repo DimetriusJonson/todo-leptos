@@ -52,7 +52,7 @@ pub fn TaskDetails(task: Task) -> impl IntoView {
         }
     });
 
-    let api_in_progress = Signal::derive(move || task.id.is_none() || delete_task.pending().get());
+    let api_in_progress = Signal::derive(move || delete_task.pending().get());
 
     view! {
         <div class="media">
@@ -93,7 +93,7 @@ pub fn TaskDetails(task: Task) -> impl IntoView {
                     class_name="is-danger is-light is-size-7-mobile".to_owned()
                     label="Удалить".to_owned()
                     loading=api_in_progress
-                    disabled=api_in_progress
+                    disabled=move || task.id.is_none() || api_in_progress.get()
                     on_click=move |_| {}
                 />
             </ActionForm>

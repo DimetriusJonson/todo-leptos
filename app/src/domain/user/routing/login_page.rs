@@ -69,6 +69,7 @@ pub fn LoginPage() -> impl IntoView {
                                 label="Войти".to_owned()
                                 loading=api_in_progress
                                 on_click=move |_| {}
+                                disabled=api_in_progress
                             />
                         </div>
                     </div>
