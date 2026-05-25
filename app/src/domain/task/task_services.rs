@@ -44,10 +44,7 @@ pub async fn delete_task(id: i64) -> Result<bool, ServerFnError> {
 }
 
 #[server(GetTasks, "/api", input = PostUrl, output = Json)]
-pub async fn get_tasks(
-    filter: Option<String>,
-    sort_kind: Option<String>,
-) -> Result<Vec<Task>, ServerFnError> {
+pub async fn get_tasks() -> Result<Vec<Task>, ServerFnError> {
     use super::task_db::db::*;
     use crate::common::app_state::ssr::*;
     use crate::domain::user::user_services::ssr::get_current_user;
@@ -58,14 +55,6 @@ pub async fn get_tasks(
         let app_state = use_app_state()?;
         let mut tasks =
             get_tasks_from_db(&app_state.pool, user.id).await.map_err(ServerFnError::new)?;
-
-        if filter.is_some() {
-            tasks = tasks.into_iter().filter(|t| filter_task(t, &filter)).collect::<Vec<Task>>();
-        }
-
-        if sort_kind.is_some() {
-            tasks.sort_by(|task1, task2| sort_task(task1, task2, &sort_kind));
-        }
 
         return Ok(tasks);
     }
