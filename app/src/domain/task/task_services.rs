@@ -11,6 +11,8 @@ pub async fn get_task(id: i64) -> Result<Task, ServerFnError> {
     use crate::common::app_state::ssr::*;
     use crate::domain::user::user_services::ssr::get_current_user;
 
+    //tokio::time::sleep(std::time::Duration::from_millis(500)).await;
+
     if let Some(user) = get_current_user(true).await? {
         let app_state = use_app_state()?;
 
@@ -49,6 +51,8 @@ pub async fn get_tasks(
     use super::task_db::db::*;
     use crate::common::app_state::ssr::*;
     use crate::domain::user::user_services::ssr::get_current_user;
+
+    //tokio::time::sleep(std::time::Duration::from_millis(500)).await;
 
     if let Some(user) = get_current_user(false).await? {
         let app_state = use_app_state()?;

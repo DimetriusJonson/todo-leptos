@@ -3,7 +3,7 @@ use leptos::prelude::*;
 use crate::components::ui::button_link::ButtonLink;
 use crate::components::ui::select_input::SelectInput;
 use crate::domain::task::components::tasks_list::TasksList;
-use crate::domain::task::model::task::{Task, sort_task};
+use crate::domain::task::model::task::sort_task;
 use crate::domain::task::routing::routes::TaskRoutes;
 use crate::domain::task::task_services::{get_filter_options, get_sort_options, get_tasks};
 use crate::domain::user::model::user::User;
@@ -25,7 +25,7 @@ pub fn TasksPanel() -> impl IntoView {
     view! {
         <div class="container is-size-7-mobile pt-5">
             <div class="buttons is-justify-content-space-between px-2 pb-5">
-                <Suspense>
+                <Transition>
                     {move || Suspend::new(async move {
                         let filter_options = filter_options_resource.await.ok();
                         let sort_options = sort_options_resource.await.ok();
@@ -56,24 +56,23 @@ pub fn TasksPanel() -> impl IntoView {
                                         }
                                     />
                                 </span>
+
+                                {if user.get().username.is_some() {
+                                    view! {
+                                        <ButtonLink
+                                            class_name="level-item is-light is-size-7-mobile".to_owned()
+                                            href=TaskRoutes::create_url().to_owned()
+                                            label="+".to_owned()
+                                            loading=None
+                                        />
+                                    }.into_any()
+                                } else {
+                                    view! { <span></span> }.into_any()
+                                }}
+
                         }.into_any()
                     })}
-                </Suspense>
-
-
-                {if user.get().username.is_some() {
-                    view! {
-                        <ButtonLink
-                            class_name="level-item is-light is-size-7-mobile".to_owned()
-                            href=TaskRoutes::create_url().to_owned()
-                            label="+".to_owned()
-                            loading=None
-                        />
-                    }
-                        .into_any()
-                } else {
-                    view! { <span></span> }.into_any()
-                }}
+                </Transition>
 
             </div>
 

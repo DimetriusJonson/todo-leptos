@@ -73,7 +73,11 @@ pub fn TasksList(filter: ReadSignal<Option<String>>) -> impl IntoView {
                 </tr>
             </thead>
             <tbody>
-            <Suspense>
+            <Transition fallback=move || view! { <tr>
+                                <td colSpan="3" style="text-align: center">
+                                    Загрузка...
+                                </td>
+                            </tr> }>
                 {move || tasks_resource.get().map(|data| {
                     let tasks = data.ok().unwrap_or_default();
                     if !tasks.is_empty() {
@@ -120,7 +124,7 @@ pub fn TasksList(filter: ReadSignal<Option<String>>) -> impl IntoView {
                         }.into_any()
                     }
                 })}
-                </Suspense>
+                </Transition>
             </tbody>
         </table>
     }
