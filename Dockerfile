@@ -4,7 +4,7 @@ RUN apk update && \
     apk add --no-cache bash curl npm libc-dev binaryen
     # protoc openssl-dev protobuf-dev gcc git g++ libc-dev make binaryen
 
-RUN npm install -g sass
+#RUN npm install -g sass
 
 RUN curl --proto '=https' --tlsv1.2 -LsSf https://github.com/leptos-rs/cargo-leptos/releases/download/v0.3.6/cargo-leptos-installer.sh | sh
 
@@ -20,13 +20,12 @@ COPY public ./public
 COPY style ./style
 COPY Cargo.toml ./
 COPY .env.docker ./.env
-COPY .sqlx ./.sqlx
+#COPY .sqlx ./.sqlx
+COPY data.db ./
 COPY rust-toolchain.toml ./
 
 RUN cargo leptos build --release -vv
 
-#FROM rustlang/rust:nightly-alpine AS runner
-#FROM debian:stable-slim AS runner
 FROM alpine:3.22.4 AS runner
 
 WORKDIR /app
@@ -34,7 +33,7 @@ WORKDIR /app
 COPY --from=builder /work/site /app/site
 COPY --from=builder /work/target/release/server /app/
 COPY --from=builder /work/Cargo.toml /app/
-#COPY --from=builder /work/data.db /app/
+COPY --from=builder /work/data.db /app/
 COPY --from=builder /work/server/migrations /app/
 
 EXPOSE 8080
