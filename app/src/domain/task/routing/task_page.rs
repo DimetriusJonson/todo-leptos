@@ -10,7 +10,6 @@ use crate::domain::task::task_services::{DeleteTask, get_task};
 
 #[component]
 pub fn TaskPage() -> impl IntoView {
-
     let params = use_params_map();
     let id = move || params.read().get("id").unwrap_or_default();
 
@@ -25,7 +24,7 @@ pub fn TaskPage() -> impl IntoView {
 
                 <div class="message-body">
                     <Transition
-                        fallback=move || view! { <TaskDetails task={Task::default()} /> }
+                        fallback=move || view! { <TaskDetails task=Task {title: Some("...".to_owned()), description: Some("...".to_owned()), ..Task::default()} /> }
                         >
                         {move || Suspend::new(async move {
                             let task = task_resource.await.unwrap();
@@ -53,7 +52,7 @@ pub fn TaskDetails(task: Task) -> impl IntoView {
         }
     });
 
-    let api_in_progress = Signal::derive(move || delete_task.pending().get());
+    let api_in_progress = Signal::derive(move || task.id.is_none() || delete_task.pending().get());
 
     view! {
         <div class="media">
