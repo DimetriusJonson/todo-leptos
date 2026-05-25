@@ -3,7 +3,7 @@ use leptos::server_fn::ServerFnError;
 use leptos::server_fn::codec::{GetUrl, Json, PostUrl};
 
 use crate::components::ui::select_input::SelectOption;
-use crate::domain::task::model::task::{Task, filter_task, sort_task};
+use crate::domain::task::model::task::Task;
 
 #[server(GetTask, "/api", input = GetUrl, output = Json)]
 pub async fn get_task(id: i64) -> Result<Task, ServerFnError> {
