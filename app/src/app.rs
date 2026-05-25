@@ -39,37 +39,40 @@ pub fn App() -> impl IntoView {
     provide_meta_context();
 
     view! {
-        // injects a stylesheet into the document <head>
-        // id=leptos means cargo-leptos will hot-reload this stylesheet
-        <Stylesheet id="bulma" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css" />
-        <Stylesheet id="leptos" href="/pkg/todo_leptos.css" />
+            // injects a stylesheet into the document <head>
+            // id=leptos means cargo-leptos will hot-reload this stylesheet
+            <Stylesheet id="bulma" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css" />
+            <Stylesheet id="leptos" href="/pkg/todo_leptos.css" />
 
-        <Title text="TODO"/>
+            <Title text="TODO"/>
 
-        <section class="section p-0">
-            <div class="is-paddingless">
-                <Router>
-                    <main>
-                        <MessageBanner />
-                        <Navbar />
-                        <Routes fallback=|| "Page not found.".into_view()>
-                            <Route path=StaticSegment(HomeRoutes::base_segment()) view=HomePage />
+            <section class="section p-0">
+                <div class="is-paddingless">
+                    <Router>
+                        <main>
+                            <MessageBanner />
+                            <Navbar />
+                            <Routes fallback=|| "Page not found.".into_view()>
+                                <ParentRoute path=path!("/") view=Outlet>
+    /*
+                                    <ParentRoute path=StaticSegment(UserRoutes::base_segment()) view=Outlet>
+                                        <Route path=StaticSegment(UserRoutes::create_segment()) view=CreateUserPage />
+                                        <Route path=StaticSegment(UserRoutes::login_segment()) view=LoginPage />
+                                    </ParentRoute>
+    */
+                                    <ParentRoute path=StaticSegment(TaskRoutes::base_segment()) view=Outlet>
+                                        <Route path=StaticSegment(TaskRoutes::create_segment()) view=TaskEditPage />
+                                        <Route path=path!(":id") view=TaskPage />
+                                        <Route path=path!(":id/edit") view=TaskEditPage />
+                                    </ParentRoute>
 
-                            <ParentRoute path=StaticSegment(UserRoutes::base_segment()) view=Outlet>
-                                <Route path=StaticSegment(UserRoutes::create_segment()) view=CreateUserPage />
-                                <Route path=StaticSegment(UserRoutes::login_segment()) view=LoginPage />
-                            </ParentRoute>
+                                    <Route path=path!("") view=HomePage />
 
-                            <ParentRoute path=StaticSegment(TaskRoutes::base_segment()) view=Outlet>
-                                <Route path=StaticSegment(TaskRoutes::create_segment()) view=TaskEditPage />
-                                <Route path=path!(":id") view=TaskPage />
-                                <Route path=path!(":id/edit") view=TaskEditPage />
-                            </ParentRoute>
-
-                        </Routes>
-                    </main>
-                </Router>
-            </div>
-        </section>
-    }
+                                </ParentRoute>
+                            </Routes>
+                        </main>
+                    </Router>
+                </div>
+            </section>
+        }
 }
