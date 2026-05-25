@@ -37,7 +37,7 @@ COPY --from=builder /work/Cargo.toml /app/
 #COPY --from=builder /work/data.db /app/
 COPY --from=builder /work/server/migrations /app/
 
-EXPOSE 8000
+EXPOSE 8080
 ENV LEPTOS_SITE_ROOT=./site
 
 CMD ["/app/server"]
