@@ -12,18 +12,29 @@ RUN curl --proto '=https' --tlsv1.2 -LsSf https://github.com/leptos-rs/cargo-lep
 RUN rustup target add wasm32-unknown-unknown
 
 WORKDIR /work
-COPY . .
+
+#COPY . .
+COPY app ./app
+COPY server ./server
+COPY public ./public
+COPY style ./style
+COPY Cargo.toml ./
+COPY .env.docker ./.env
+COPY .sqlx ./.sqlx
+COPY rust-toolchain.toml ./
 
 RUN cargo leptos build --release -vv
 
-FROM rustlang/rust:nightly-alpine AS runner
+#FROM rustlang/rust:nightly-alpine AS runner
+#FROM debian:stable-slim AS runner
+FROM alpine:3.22.4 AS runner
 
 WORKDIR /app
 
 COPY --from=builder /work/site /app/site
 COPY --from=builder /work/target/release/server /app/
 COPY --from=builder /work/Cargo.toml /app/
-COPY --from=builder /work/data.db /app/
+#COPY --from=builder /work/data.db /app/
 COPY --from=builder /work/server/migrations /app/
 
 EXPOSE 3000
