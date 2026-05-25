@@ -9,12 +9,10 @@ use crate::domain::task::routing::routes::TaskRoutes;
 use crate::domain::task::task_services::change_completed_task;
 
 #[component]
-pub fn TasksList(
-    tasks: ReadSignal<Vec<Task>>,
-    set_tasks: WriteSignal<Vec<Task>>,
-    filter: ReadSignal<Option<String>>,
-) -> impl IntoView {
+pub fn TasksList(filter: ReadSignal<Option<String>>) -> impl IntoView {
     let messages: Messages = use_context::<Messages>().expect("Cant get messages context!");
+
+    let tasks_resource = use_context::<Resource<Result<Vec<Task>, ServerFnError>>>().unwrap();
 
     let completed_on_change = move |event: Event| {
         event.prevent_default();
@@ -34,12 +32,22 @@ pub fn TasksList(
                         Ok(saved_task) => {
                             checkbox.set_checked(saved_task.completed_at.is_some());
 
-                            if let Some(found_task) =
-                                set_tasks.write().iter_mut().find(|t| t.id == Some(id))
-                            {
-                                found_task.completed_at = saved_task.completed_at;
-                            }
-                            show_info("Задача сохранена.".to_owned(), messages);
+                            tasks_resource.write().as_mut().map(|data| {
+                                if let Ok(tasks) = data {
+                                    if let Some(found_task) =
+                                        tasks.iter_mut().find(|t| t.id == Some(id))
+                                    {
+                                        found_task.completed_at = saved_task.completed_at;
+                                        show_info(
+                                            format!(
+                                                "Задача {} сохранена.",
+                                                found_task.id.unwrap_or_default()
+                                            ),
+                                            messages,
+                                        );
+                                    }
+                                }
+                            });
                         }
                         Err(err) => {
                             let msg = match err {
@@ -65,12 +73,13 @@ pub fn TasksList(
                 </tr>
             </thead>
             <tbody>
-                {move || {
-                    if !tasks.read().is_empty() {
+            <Suspense>
+                {move || tasks_resource.get().map(|data| {
+                    let tasks = data.ok().unwrap_or_default();
+                    if !tasks.is_empty() {
                         {
                             tasks
-                                .get()
-                                .into_iter()
+                                .iter()
                                 .filter(|task| filter_task(task, &filter.get()))
                                 .map(|task| {
                                     view! {
@@ -99,24 +108,20 @@ pub fn TasksList(
                                             <td class="is-hidden-mobile">{task.description.to_owned()}</td>
                                         </tr>
                                     }
-                                })
-                                .collect::<Vec<_>>()
-                        }
-                            .into_any()
+                                }).collect::<Vec<_>>()
+                        }.into_any()
                     } else {
-
                         view! {
                             <tr>
                                 <td colSpan="3" style="text-align: center">
                                     Нет записей
                                 </td>
                             </tr>
-                        }
-                            .into_any()
+                        }.into_any()
                     }
-                }}
+                })}
+                </Suspense>
             </tbody>
         </table>
     }
 }
-

@@ -10,13 +10,15 @@ use crate::domain::user::model::user::User;
 
 #[component]
 pub fn TasksPanel() -> impl IntoView {
-    let (tasks, set_tasks) = signal(Vec::<Task>::new());
     let (filter, set_filter) = signal(Some("".to_owned()));
 
     let user = use_context::<ReadSignal<User>>().unwrap();
 
     let tasks_resource =
         Resource::new(move || user.get().id, move |_| async move { get_tasks(None, None).await });
+
+    provide_context(tasks_resource);
+
     let filter_options_resource = OnceResource::new(get_filter_options());
     let sort_options_resource = OnceResource::new(get_sort_options());
 
@@ -46,9 +48,11 @@ pub fn TasksPanel() -> impl IntoView {
                                         options=sort_options.unwrap()
                                         on_change=move |value: String| {
                                             let sort_kind = if value.is_empty() { None } else { Some(value) };
-                                            set_tasks
-                                                .write()
-                                                .sort_by(|task1, task2| sort_task(task1, task2, &sort_kind));
+                                            tasks_resource.write().as_mut().map(|data|{
+                                                if let Ok(tasks) = data {
+                                                    tasks.sort_by(|task1, task2| sort_task(task1, task2, &sort_kind));
+                                                }
+                                            });
                                         }
                                     />
                                 </span>
@@ -73,18 +77,7 @@ pub fn TasksPanel() -> impl IntoView {
 
             </div>
 
-            <Suspense>
-                {
-                    move || tasks_resource.get().map(|data| {
-                        set_tasks.set(data.ok().unwrap_or_default());
-                        view!{
-                            <TasksList tasks set_tasks filter />
-                        }
-                    })
-                }
-            </Suspense>
-
-
+            <TasksList filter />
 
         </div>
     }
