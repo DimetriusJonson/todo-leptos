@@ -63,7 +63,6 @@ pub fn TasksPanel() -> impl IntoView {
                                             class_name="level-item is-light is-size-7-mobile".to_owned()
                                             href=TaskRoutes::create_url().to_owned()
                                             label="+".to_owned()
-                                            loading=None
                                         />
                                     }.into_any()
                                 } else {

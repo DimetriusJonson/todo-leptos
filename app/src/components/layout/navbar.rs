@@ -67,7 +67,7 @@ pub fn Navbar() -> impl IntoView {
             >
                 <div class="navbar-start">
                     <div class="navbar-item">
-                        <ButtonLink label="Пользователи".to_owned() href="/users".to_owned() loading=None/>
+                        <ButtonLink label="Пользователи".to_owned() href="/users".to_owned()/>
                     </div>
                 </div>
 
@@ -95,7 +95,6 @@ pub fn Navbar() -> impl IntoView {
                                                     class_name="button is-warning is-soft is-rounded".to_owned()
                                                     label="Создать пользователя".to_owned()
                                                     href=UserRoutes::create_url().to_owned()
-                                                    loading=None
                                                 />
                                             </div>
                                             <div class="navbar-item">
@@ -103,7 +102,6 @@ pub fn Navbar() -> impl IntoView {
                                                     class_name="is-light".to_owned()
                                                     label="Войти".to_owned()
                                                     href=UserRoutes::login_url().to_owned()
-                                                    loading=None
                                                 />
                                             </div>
                                     }.into_any()

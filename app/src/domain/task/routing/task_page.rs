@@ -82,7 +82,6 @@ pub fn TaskDetails(task: Task) -> impl IntoView {
                 class_name="is-primary is-size-7-mobile".to_owned()
                 href={TaskRoutes::edit_url(task.id.unwrap_or_default())}
                 label="Изменить".to_owned()
-                loading=None
             />
 
             <ActionForm action=delete_task>

@@ -139,9 +139,7 @@ pub fn TaskEditForm(
                             href=match task.id {
                                 Some(id) => TaskRoutes::details_url(id),
                                 None => HomeRoutes::base_url().to_owned(),
-                            }
-                                .to_owned()
-                            loading=None
+                            }.to_owned()
                         />
                     </div>
                 </div>
