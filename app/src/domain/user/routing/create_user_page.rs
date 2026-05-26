@@ -32,6 +32,8 @@ pub fn CreateUserPage() -> impl IntoView {
         <div class="container p-4">
             <MainTitle title="Создать пользователя".to_owned() />
             <ActionForm action=create_user>
+                <input name="params[version]" type="hidden" value={create_user.version().get()} />
+
                 <div class="help is-danger is-size-5 py-4">{common_error}</div>
 
                 <fieldset disabled=create_user.pending()>

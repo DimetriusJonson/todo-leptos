@@ -37,6 +37,8 @@ pub fn LoginPage() -> impl IntoView {
             <MainTitle title="Вход в систему".to_owned() />
 
             <ActionForm action=login>
+                <input name="params[version]" type="hidden" value={login.version().get()} />
+
                 <div class="help is-danger is-size-5 py-4">{common_error}</div>
 
                 <fieldset disabled=login.pending()>

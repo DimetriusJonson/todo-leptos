@@ -3,6 +3,8 @@ use validator::Validate;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Validate)]
 pub struct CreateUserParams {
+    pub version: usize,
+
     #[validate(required, length(min = 3))]
     pub name: Option<String>,
     #[validate(required, length(min = 4))]
