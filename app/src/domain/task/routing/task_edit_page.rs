@@ -60,8 +60,6 @@ pub fn TaskEditForm(
 
     let messages = use_context::<Messages>().expect("Cant get messages context!");
 
-    let api_in_progress = Signal::derive(move || update_or_create_task.pending().get());
-
     Effect::new(move |_| {
         if let Some(Ok(_)) = update_or_create_task.value().get() {
             show_info("Задача сохранена!".to_owned(), messages);
@@ -129,9 +127,9 @@ pub fn TaskEditForm(
                         <Button
                             class_name="is-primary".to_owned()
                             label="Сохранить".to_owned()
-                            loading=api_in_progress
+                            loading=update_or_create_task.pending()
                             on_click=move |_| {}
-                            disabled=api_in_progress
+                            disabled=update_or_create_task.pending()
                         />
                     </div>
                     <div class="control">

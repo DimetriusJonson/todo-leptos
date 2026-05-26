@@ -39,8 +39,6 @@ pub fn Navbar() -> impl IntoView {
         }
     });
 
-    let api_in_progress = Signal::derive(move || logout.pending().get());
-
     view! {
         <nav class="navbar is-primary" aria-label="main navigation">
             <div class="navbar-brand">
@@ -83,8 +81,8 @@ pub fn Navbar() -> impl IntoView {
                                                 <Button
                                                     class_name="is-warning is-light".to_owned()
                                                     label={format!("Выйти {}", user_name)}
-                                                    loading=api_in_progress
-                                                    disabled=api_in_progress
+                                                    loading=logout.pending()
+                                                    disabled=logout.pending()
                                                     on_click=move |_| {}
                                                 />
                                             </ActionForm>

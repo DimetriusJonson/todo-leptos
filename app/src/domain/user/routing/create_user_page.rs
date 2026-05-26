@@ -21,8 +21,6 @@ pub fn CreateUserPage() -> impl IntoView {
         Signal::derive(move || create_user.value().with(ui_build_validation_errors));
     let common_error = move || ui_build_common_error(validation_errors);
 
-    let api_in_progress = Signal::derive(move || create_user.pending().get());
-
     Effect::new(move |_| {
         if let Some(Ok(user)) = create_user.value().get() {
             show_info(
@@ -61,9 +59,9 @@ pub fn CreateUserPage() -> impl IntoView {
                             <Button
                                 class_name="is-primary".to_owned()
                                 label="Создать".to_owned()
-                                loading=api_in_progress
+                                loading=create_user.pending()
                                 on_click=move |_| {}
-                                disabled=api_in_progress
+                                disabled=create_user.pending()
                             />
                         </div>
                     </div>

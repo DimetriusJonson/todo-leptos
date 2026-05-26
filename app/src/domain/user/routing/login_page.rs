@@ -25,8 +25,6 @@ pub fn LoginPage() -> impl IntoView {
         Signal::derive(move || login.value().with(ui_build_validation_errors));
     let common_error = move || ui_build_common_error(validation_errors);
 
-    let api_in_progress = Signal::derive(move || login.pending().get());
-
     Effect::new(move |_| {
         if let Some(Ok(_)) = login.value().get() {
             show_info("Вы вошли!".to_owned(), messages);
@@ -67,9 +65,9 @@ pub fn LoginPage() -> impl IntoView {
                             <Button
                                 class_name="is-primary".to_owned()
                                 label="Войти".to_owned()
-                                loading=api_in_progress
+                                loading=login.pending()
                                 on_click=move |_| {}
-                                disabled=api_in_progress
+                                disabled=login.pending()
                             />
                         </div>
                     </div>
