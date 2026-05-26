@@ -18,7 +18,7 @@ pub fn TasksPanel() -> impl IntoView {
     let query_map = use_query_map();
     let auth = move || query_map.with(|m| m.get("auth"));
 
-    let tasks_resource = Resource::new(auth, |_s| async move { get_tasks().await });
+    let tasks_resource = Resource::new(auth, |_s| get_tasks());
 
     provide_context(tasks_resource);
 
