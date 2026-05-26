@@ -5,11 +5,14 @@ use std::env;
 use dotenv::dotenv;
 use leptos::prelude::*;
 use tracing_log::LogTracer;
+//use tracing_subscriber::EnvFilter;
 use tracing_subscriber::{EnvFilter, FmtSubscriber};
+use tracing_subscriber::layer::SubscriberExt;
+use tracing_subscriber::util::SubscriberInitExt;
 
 mod app_router;
-mod fallback;
 mod db;
+mod fallback;
 
 use app_router::build_app_router::build_app_router;
 
@@ -17,39 +20,45 @@ use crate::db::create_pool;
 
 #[tokio::main(flavor = "multi_thread")]
 async fn main() -> anyhow::Result<()> {
-    LogTracer::init().expect("Failed to set logger");
+    let environment = env::var("APP_ENV").unwrap_or_else(|_| "dev".to_string());
+    let env_file_name = format!(".env.{}", environment);
+    println!("environment={}, env_file_name={}", environment, env_file_name);
 
-    let subscriber = FmtSubscriber::builder()
-        .with_ansi(true)
-        .with_file(true)
-        .with_line_number(true)
-        // Apply the EnvFilter to use RUST_LOG
-        .with_env_filter(EnvFilter::from_default_env())
-        .finish();
-
-    tracing::subscriber::set_global_default(subscriber).expect("Could not set subscriber");
     dotenv().ok();
+    dotenvy::from_filename_override(env_file_name).ok();
+
+ /*   
+    tracing_subscriber::registry()
+        .with(EnvFilter::try_from_default_env().unwrap_or_else(|_| {
+            format!("{}=error,tower_http=error", env!("CARGO_CRATE_NAME")).into()
+        }))
+        .with(tracing_subscriber::fmt::layer())
+        .init();
+ */
+    
+        LogTracer::init().expect("Failed to set logger");
+
+        let subscriber = FmtSubscriber::builder()
+            .with_ansi(true)
+            //.with_file(true)
+            .with_line_number(true)
+            // Apply the EnvFilter to use RUST_LOG
+            .with_env_filter(EnvFilter::from_default_env())
+            .finish();
+
+        tracing::subscriber::set_global_default(subscriber).expect("Could not set subscriber");
+    
 
     let conf = get_configuration(None)?;
 
     let addr = conf.leptos_options.site_addr;
-
-    let environment = env::var("APP_ENV").unwrap_or_else(|_| "dev".to_string());
-    let env_file_name = format!(".env.{}", environment);
-    println!(
-        "environment={}, env_file_name={}",
-        environment, env_file_name
-    );
-
-    dotenv().ok();
-    dotenvy::from_filename_override(env_file_name).ok();
 
     let pool = create_pool().await?;
 
     println!("init listener on http://{}", &addr);
     let app = build_app_router(conf, pool).await?;
     println!("listening on http://{}", &addr);
-//    info!("listening on http://{}", &addr);
+    //    info!("listening on http://{}", &addr);
     let listener = tokio::net::TcpListener::bind(addr).await?;
     axum::serve(listener, app).await.unwrap();
     Ok(())

@@ -4,18 +4,19 @@ use app::common::app_state::ssr::AppState;
 use app::common::security_context::SecurityContext;
 use app::domain::user::model::user::User;
 use app::domain::user::user_services::ssr::is_valid_token;
-use axum::middleware::Next;
-use axum::{Router, middleware};
 use axum::body::Body as AxumBody;
 use axum::extract::State;
 use axum::http::Request;
+use axum::middleware::Next;
 use axum::response::{IntoResponse, Response};
 use axum::routing::get;
+use axum::{Router, middleware};
 use leptos::prelude::*;
 use leptos_axum::{
     LeptosRoutes, generate_route_list, handle_server_fns_with_context,
     render_app_to_stream_with_context,
 };
+use tower_http::trace::TraceLayer;
 
 use crate::fallback::file_and_error_handler;
 
@@ -36,6 +37,7 @@ pub async fn build_app_router(conf_file: ConfFile, pool: DbPool) -> anyhow::Resu
         .leptos_routes_with_handler(routes, get(leptos_routes_handler))
         .route_layer(middleware::from_fn_with_state(app_state.clone(), check_auth_token))
         .fallback(file_and_error_handler)
+        .layer(TraceLayer::new_for_http())
         .with_state(app_state))
 }
 
