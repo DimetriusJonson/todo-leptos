@@ -21,13 +21,12 @@ pub fn SelectWithLabel(
         </label>
         <SelectInput name=name not_selected_text=not_selected_text options=options value=value on_change=on_change />
 
-        <Show when=move || { errors.read().contains_key(error_path) } fallback=|| view! { <p></p> }>
+        <Show when=move || { errors.read().contains_key(error_path) }>
             <div class="px-4">
                 <For each=move || errors.read().get(error_path).unwrap().clone() key=|error| error.clone() let(error)>
                     <p class="help is-danger">{error}</p>
                 </For>
             </div>
-
         </Show>
     }
 }

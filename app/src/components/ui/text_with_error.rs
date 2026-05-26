@@ -25,16 +25,13 @@ pub fn TextWithError(
             </div>
 
             <Show
-                when=move || {errors.read().contains_key(error_path)}
-                fallback=|| view!{ <p></p> }>
-
+                when=move || {errors.read().contains_key(error_path)}>
                     <For
                         each=move || errors.read().get(error_path).unwrap().clone()
                         key=|error| error.clone()
                         let(error)>
                         <p class="help is-danger">{error}</p>
                     </For>
-
             </Show>
         }
 }
