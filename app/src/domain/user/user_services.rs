@@ -1,4 +1,3 @@
-use bcrypt::DEFAULT_COST;
 use leptos::server;
 use leptos::server_fn::ServerFnError;
 use leptos::server_fn::codec::{GetUrl, Json, PostUrl};
@@ -91,6 +90,7 @@ pub mod ssr {
 
 #[server(CreateUser, "/api", input = PostUrl, output = Json)]
 pub async fn create_user(params: CreateUserParams) -> Result<User, ServerFnError> {
+    use bcrypt::DEFAULT_COST;
     use validator::Validate;
 
     use crate::common::api_error::ApiError;

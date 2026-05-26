@@ -3,14 +3,14 @@ use std::collections::HashMap;
 use leptos::prelude::*;
 use leptos_router::hooks::use_query_map;
 
-use crate::{
-    common::validate_helper::{ui_build_common_error, ui_build_validation_errors},
-    components::{
-        layout::message_banner::{show_info, Messages},
-        ui::{button::Button, main_title::MainTitle, text_with_error::TextWithError},
-    },
-    domain::user::user_services::Login,
+use crate::common::validate_helper::{
+    ui_build_common_error, ui_build_validation_errors, ui_extract_field_errors,
 };
+use crate::components::layout::message_banner::{Messages, show_info};
+use crate::components::ui::button::Button;
+use crate::components::ui::main_title::MainTitle;
+use crate::components::ui::text_with_error::TextWithError;
+use crate::domain::user::user_services::Login;
 
 #[component]
 pub fn LoginPage() -> impl IntoView {
@@ -44,8 +44,7 @@ pub fn LoginPage() -> impl IntoView {
                         { move || view! {
                                 <TextWithError input_type="text".to_owned() name="params[name]".to_owned()
                                     placeholder="Имя пользователя".to_owned()
-                                    errors=validation_errors
-                                    error_path="name"
+                                    errors=move || ui_extract_field_errors("name", validation_errors)
                                     value={def_user_name().unwrap_or_default()}
                                 />
                             }
@@ -55,8 +54,7 @@ pub fn LoginPage() -> impl IntoView {
                     <div class="field">
                         <TextWithError input_type="password".to_owned() name="params[password]".to_owned()
                             placeholder="Пароль".to_owned()
-                            errors=validation_errors
-                            error_path="password"
+                            errors=move || ui_extract_field_errors("password", validation_errors)
                         />
                     </div>
 

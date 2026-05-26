@@ -3,7 +3,9 @@ use std::collections::HashMap;
 use leptos::prelude::*;
 use leptos_router::hooks::use_params_map;
 
-use crate::common::validate_helper::{ui_build_common_error, ui_build_validation_errors};
+use crate::common::validate_helper::{
+    ui_build_common_error, ui_build_validation_errors, ui_extract_field_errors,
+};
 use crate::components::layout::message_banner::{Messages, show_info};
 use crate::components::ui::button::Button;
 use crate::components::ui::button_link::ButtonLink;
@@ -80,8 +82,7 @@ pub fn TaskEditForm(
                             <SelectWithLabel
                                 name="task[priority]".to_owned()
                                 label="Приоритет:".to_owned()
-                                error_path="priority"
-                                errors=validation_errors
+                                errors=move || ui_extract_field_errors("priority", validation_errors)
                                 options=priorities.unwrap_or_default()
                                 not_selected_text="Не выбран".to_owned()
                                 value=task.priority.unwrap_or_default()
@@ -106,8 +107,7 @@ pub fn TaskEditForm(
                         input_type="text".to_owned()
                         name="task[title]".to_owned()
                         placeholder="Название".to_owned()
-                        errors=validation_errors
-                        error_path="title"
+                        errors=move || ui_extract_field_errors("title", validation_errors)
                         value=task.title.unwrap_or_default()
                     />
                 </div>

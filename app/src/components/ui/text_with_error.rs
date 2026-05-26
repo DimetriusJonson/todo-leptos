@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use leptos::prelude::*;
 
 #[component]
@@ -8,30 +6,21 @@ pub fn TextWithError(
     placeholder: String,
     input_type: String,
     #[prop(optional)] value: String,
-    errors: Signal<HashMap<String, Vec<String>>>,
-    error_path: &'static str,
+    errors: impl Fn() -> Option<Vec<String>> + Send + Sync + 'static,
 ) -> impl IntoView {
     view! {
-            <div class="control">
-                <input
-                    class={"input"}
-                    class:is-danger=move || false
-                    type=input_type
-                    id=name.to_owned()
-                    name=name.to_owned()
-                    value=value
-                    placeholder=placeholder
-                />
-            </div>
+        <div class="control">
+            <input
+                class={"input"}
+                class:is-danger=move || false
+                type=input_type
+                id=name.to_owned()
+                name=name.to_owned()
+                value=value
+                placeholder=placeholder
+            />
+        </div>
 
-            <Show
-                when=move || {errors.read().contains_key(error_path)}>
-                    <For
-                        each=move || errors.read().get(error_path).unwrap().clone()
-                        key=|error| error.clone()
-                        let(error)>
-                        <p class="help is-danger">{error}</p>
-                    </For>
-            </Show>
-        }
+        { move || errors().map(|list| list.into_iter().map(|msg| view!{ <p class="px-4 help is-danger">{msg}</p>}).collect::<Vec<_>>()) }
+    }
 }

@@ -44,3 +44,11 @@ pub fn ui_build_common_error(errors: Signal<HashMap<String, Vec<String>>>) -> St
         None => "".to_owned(),
     }
 }
+
+pub fn ui_extract_field_errors(
+    name: &str,
+    validation_errors: Signal<HashMap<String, Vec<String>>>,
+) -> Option<Vec<String>> {
+    let all_errors = validation_errors.read();
+    all_errors.get(name).and_then(|c| Some(c.into_iter().map(|e| e.to_owned()).collect()))
+}
