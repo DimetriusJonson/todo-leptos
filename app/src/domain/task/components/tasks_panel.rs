@@ -1,4 +1,5 @@
 use leptos::prelude::*;
+use leptos_router::hooks::use_query_map;
 
 use crate::components::ui::button_link::ButtonLink;
 use crate::components::ui::select_input::SelectInput;
@@ -14,12 +15,10 @@ pub fn TasksPanel() -> impl IntoView {
 
     let user = use_context::<ReadSignal<User>>().unwrap();
 
-    let tasks_resource = Resource::new(
-        move || user.get().id,
-        move |user_id: Option<i64>| async move {
-            if let Some(_) = user_id { get_tasks().await } else { Ok(Vec::new()) }
-        },
-    );
+    let query_map = use_query_map();
+    let auth = move || query_map.with(|m| m.get("auth"));
+
+    let tasks_resource = Resource::new(auth, |_s| async move { get_tasks().await });
 
     provide_context(tasks_resource);
 
