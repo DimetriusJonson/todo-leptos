@@ -14,8 +14,12 @@ pub fn TasksPanel() -> impl IntoView {
 
     let user = use_context::<ReadSignal<User>>().unwrap();
 
-    let tasks_resource =
-        Resource::new(move || user.get().id, move |_| async move { get_tasks().await });
+    let tasks_resource = Resource::new(
+        move || user.get().id,
+        move |user_id: Option<i64>| async move {
+            if let Some(_) = user_id { get_tasks().await } else { Ok(Vec::new()) }
+        },
+    );
 
     provide_context(tasks_resource);
 
