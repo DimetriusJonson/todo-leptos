@@ -1,3 +1,4 @@
+use bcrypt::DEFAULT_COST;
 use leptos::server;
 use leptos::server_fn::ServerFnError;
 use leptos::server_fn::codec::{GetUrl, Json, PostUrl};
@@ -116,7 +117,7 @@ pub async fn create_user(params: CreateUserParams) -> Result<User, ServerFnError
         ))?;
     }
 
-    let hash_pass = bcrypt::hash(params.password.to_owned().unwrap(), 14)
+    let hash_pass = bcrypt::hash(params.password.to_owned().unwrap(), DEFAULT_COST)
         .map_err(|err| ServerFnError::new(format!("Failed hash password: {}", err)))?;
 
     let user = create_user_in_db(
