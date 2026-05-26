@@ -24,7 +24,7 @@ pub fn TaskEditPage() -> impl IntoView {
     let params = use_params_map();
     let id = move || params.read().get("id").unwrap_or_default().parse::<i64>().ok();
 
-    let task_resource = Resource::new(id, move |id| get_task(id.unwrap_or(0)));
+    let task_resource = Resource::new_blocking(id, move |id| get_task(id.unwrap_or(0)));
     let priorities_resource = OnceResource::new(get_priorities());
 
     let title = move || match id() {

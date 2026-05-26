@@ -5,10 +5,7 @@ use std::env;
 use dotenv::dotenv;
 use leptos::prelude::*;
 use tracing_log::LogTracer;
-//use tracing_subscriber::EnvFilter;
 use tracing_subscriber::{EnvFilter, FmtSubscriber};
-use tracing_subscriber::layer::SubscriberExt;
-use tracing_subscriber::util::SubscriberInitExt;
 
 mod app_router;
 mod db;
@@ -18,7 +15,8 @@ use app_router::build_app_router::build_app_router;
 
 use crate::db::create_pool;
 
-#[tokio::main(flavor = "multi_thread")]
+//#[tokio::main(flavor = "multi_thread")]
+#[tokio::main(flavor = "current_thread")]
 async fn main() -> anyhow::Result<()> {
     let environment = env::var("APP_ENV").unwrap_or_else(|_| "dev".to_string());
     let env_file_name = format!(".env.{}", environment);
@@ -27,27 +25,17 @@ async fn main() -> anyhow::Result<()> {
     dotenv().ok();
     dotenvy::from_filename_override(env_file_name).ok();
 
- /*   
-    tracing_subscriber::registry()
-        .with(EnvFilter::try_from_default_env().unwrap_or_else(|_| {
-            format!("{}=error,tower_http=error", env!("CARGO_CRATE_NAME")).into()
-        }))
-        .with(tracing_subscriber::fmt::layer())
-        .init();
- */
-    
-        LogTracer::init().expect("Failed to set logger");
+    LogTracer::init().expect("Failed to set logger");
 
-        let subscriber = FmtSubscriber::builder()
-            .with_ansi(true)
-            //.with_file(true)
-            .with_line_number(true)
-            // Apply the EnvFilter to use RUST_LOG
-            .with_env_filter(EnvFilter::from_default_env())
-            .finish();
+    let subscriber = FmtSubscriber::builder()
+        .with_ansi(true)
+        //.with_file(true)
+        .with_line_number(true)
+        // Apply the EnvFilter to use RUST_LOG
+        .with_env_filter(EnvFilter::from_default_env())
+        .finish();
 
-        tracing::subscriber::set_global_default(subscriber).expect("Could not set subscriber");
-    
+    tracing::subscriber::set_global_default(subscriber).expect("Could not set subscriber");
 
     let conf = get_configuration(None)?;
 

@@ -13,7 +13,7 @@ pub fn TaskPage() -> impl IntoView {
     let params = use_params_map();
     let id = move || params.read().get("id").unwrap_or_default();
 
-    let task_resource = Resource::new(id, async move |id| get_task(id.parse().unwrap_or(0)).await);
+    let task_resource = Resource::new_blocking(id, async move |id| get_task(id.parse().unwrap_or(0)).await);
 
     view! {
         <div class="container p-4">
@@ -27,7 +27,6 @@ pub fn TaskPage() -> impl IntoView {
                         fallback=move || view! { <TaskDetails task=Task {title: Some("...".to_owned()), description: Some("...".to_owned()), ..Task::default()} /> }
                         >
                         {move || task_resource.get().map(|data| {
-                            //let task = task_resource.await.unwrap();
                             let task = data.ok().unwrap_or_default();
                             view! {
                                 <TaskDetails task />

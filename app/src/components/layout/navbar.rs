@@ -22,7 +22,7 @@ pub fn Navbar() -> impl IntoView {
     let query_map = use_query_map();
     let auth = move || query_map.with(|m| m.get("auth"));
 
-    let user_resource = Resource::new(auth, |_s| async move { auth_data().await });
+    let user_resource = Resource::new_blocking(auth, |_s| async move { auth_data().await });
 
     let (user, set_user) = signal(User::default());
     provide_context(user);
@@ -73,41 +73,43 @@ pub fn Navbar() -> impl IntoView {
 
                 <div class="navbar-end">
                     <div class="buttons">
-                         { move || {
-                                if let Some(user_name)=user.get().username {
-                                    view! {
-                                        <div class="navbar-item">
-                                            <ActionForm action=logout>
-                                                <Button
-                                                    class_name="is-warning is-light".to_owned()
-                                                    label={format!("Выйти {}", user_name)}
-                                                    loading=logout.pending()
-                                                    disabled=logout.pending()
-                                                    on_click=move |_| {}
-                                                />
-                                            </ActionForm>
-                                        </div>
-                                    }.into_any()
-                                } else {
-                                    view! {
-                                        <div class="navbar-item">
-                                                <ButtonLink
-                                                    class_name="button is-warning is-soft is-rounded".to_owned()
-                                                    label="Создать пользователя".to_owned()
-                                                    href=UserRoutes::create_url().to_owned()
-                                                />
-                                            </div>
+                        <Transition>
+                            {move || user_resource.get().map(|data| {
+                                let user = data.ok().unwrap_or_default();
+                                if let Some(user_name)=user.username {
+                                        view! {
                                             <div class="navbar-item">
-                                                <ButtonLink
-                                                    class_name="is-light".to_owned()
-                                                    label="Войти".to_owned()
-                                                    href=UserRoutes::login_url().to_owned()
-                                                />
+                                                <ActionForm action=logout>
+                                                    <Button
+                                                        class_name="is-warning is-light".to_owned()
+                                                        label={format!("Выйти {}", user_name)}
+                                                        loading=logout.pending()
+                                                        disabled=logout.pending()
+                                                        on_click=move |_| {}
+                                                    />
+                                                </ActionForm>
                                             </div>
-                                    }.into_any()
-                                }
-                            }
-                        }
+                                        }.into_any()
+                                } else {
+                                        view! {
+                                            <div class="navbar-item">
+                                                    <ButtonLink
+                                                        class_name="button is-warning is-soft is-rounded".to_owned()
+                                                        label="Создать пользователя".to_owned()
+                                                        href=UserRoutes::create_url().to_owned()
+                                                    />
+                                                </div>
+                                                <div class="navbar-item">
+                                                    <ButtonLink
+                                                        class_name="is-light".to_owned()
+                                                        label="Войти".to_owned()
+                                                        href=UserRoutes::login_url().to_owned()
+                                                    />
+                                                </div>
+                                        }.into_any()
+                                }                        
+                            })}
+                        </Transition>
                     </div>
                 </div>
             </div>
