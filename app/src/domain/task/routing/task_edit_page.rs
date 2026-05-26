@@ -82,6 +82,7 @@ pub fn TaskEditForm(
                             <SelectWithLabel
                                 name="task[priority]".to_owned()
                                 label="Приоритет:".to_owned()
+                                select_class_name="pr-4".to_owned()
                                 errors=move || ui_extract_field_errors("priority", validation_errors)
                                 options=priorities.unwrap_or_default()
                                 not_selected_text="Не выбран".to_owned()

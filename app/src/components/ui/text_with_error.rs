@@ -21,6 +21,6 @@ pub fn TextWithError(
             />
         </div>
 
-        { move || errors().map(|list| list.into_iter().map(|msg| view!{ <p class="px-4 help is-danger">{msg}</p>}).collect::<Vec<_>>()) }
+        { move || errors().map(|list| list.into_iter().map(|msg| view!{ <p class="help is-danger">{msg}</p>}).collect::<Vec<_>>()) }
     }
 }
