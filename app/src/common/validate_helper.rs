@@ -8,30 +8,41 @@ use serde_json::Value;
 pub fn ui_build_validation_errors<T>(
     error: &Option<Result<T, ServerFnError>>,
 ) -> HashMap<String, Vec<String>> {
-    if let Some(Err(ServerFnError::ServerError(msg))) = error {
-        match serde_json::from_str::<Value>(msg) {
-            Ok(value) => {
-                if let Some(value_obj) = value.as_object() {
-                    let mut map = HashMap::new();
-                    for (field_name, field_errors_val) in value_obj.iter() {
-                        if let Value::Array(field_errors) = field_errors_val {
-                            map.insert(
-                                field_name.to_owned(),
-                                field_errors
-                                    .iter()
-                                    .map(|v| {
-                                        v.get("message").unwrap().as_str().unwrap().to_string()
-                                    })
-                                    .collect(),
-                            );
-                        };
+    if let Some(Err(error)) = error {
+        match error {
+            ServerFnError::ServerError(msg) => match serde_json::from_str::<Value>(msg) {
+                Ok(value) => {
+                    if let Some(value_obj) = value.as_object() {
+                        let mut map = HashMap::new();
+                        for (field_name, field_errors_val) in value_obj.iter() {
+                            if let Value::Array(field_errors) = field_errors_val {
+                                map.insert(
+                                    field_name.to_owned(),
+                                    field_errors
+                                        .iter()
+                                        .map(|v| {
+                                            v.get("message").unwrap().as_str().unwrap().to_string()
+                                        })
+                                        .collect(),
+                                );
+                            };
+                        }
+                        return map;
                     }
-                    return map;
                 }
-            }
-            Err(_err) => {
-                return HashMap::from([("common_error".to_owned(), vec![msg.to_owned()])]);
-            }
+                Err(_err) => {
+                    return HashMap::from([("common_error".to_owned(), vec![msg.to_owned()])]);
+                }
+            },
+            ServerFnError::Registration(msg) => return HashMap::from([("common_error".to_owned(), vec![msg.to_owned()])]),
+            ServerFnError::Request(msg) => return HashMap::from([("common_error".to_owned(), vec![msg.to_owned()])]),
+            ServerFnError::Response(msg) => return HashMap::from([("common_error".to_owned(), vec![msg.to_owned()])]),
+            ServerFnError::MiddlewareError(msg) => return HashMap::from([("common_error".to_owned(), vec![msg.to_owned()])]),
+            ServerFnError::Deserialization(msg) => return HashMap::from([("common_error".to_owned(), vec![msg.to_owned()])]),
+            ServerFnError::Serialization(msg) => return HashMap::from([("common_error".to_owned(), vec![msg.to_owned()])]),
+            ServerFnError::Args(msg) => return HashMap::from([("common_error".to_owned(), vec![msg.to_owned()])]),
+            ServerFnError::MissingArg(msg) => return HashMap::from([("common_error".to_owned(), vec![msg.to_owned()])]),
+            _ => return HashMap::new(),
         }
     }
 
