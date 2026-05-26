@@ -1,6 +1,8 @@
 use leptos::prelude::*;
+use leptos_router::components::Form;
 use leptos_router::hooks::use_query_map;
 
+use crate::components::ui::button::Button;
 use crate::components::ui::button_link::ButtonLink;
 use crate::components::ui::select_input::SelectInput;
 use crate::domain::task::components::tasks_list::TasksList;
@@ -16,9 +18,11 @@ pub fn TasksPanel() -> impl IntoView {
     let user = use_context::<ReadSignal<User>>().unwrap();
 
     let query_map = use_query_map();
-    let auth = move || query_map.with(|m| m.get("auth"));
+    let url_params =
+        move || query_map.with(|m| (m.get("auth"), m.get("filter"), m.get("sort_kind")));
 
-    let tasks_resource = Resource::new_blocking(auth, |_s| get_tasks());
+    let tasks_resource =
+        Resource::new_blocking(url_params, move |params| get_tasks(params.1, params.2));
 
     provide_context(tasks_resource);
 
@@ -34,30 +38,41 @@ pub fn TasksPanel() -> impl IntoView {
                         let sort_options = sort_options_resource.await.ok();
                         view! {
                                 <span>
-                                    <SelectInput
-                                        class_name="is-size-7-mobile".to_owned()
-                                        name="filter".to_owned()
-                                        not_selected_text="Фильтр".to_owned()
-                                        options=filter_options.unwrap()
-                                        on_change=move |value: String| {
-                                            set_filter
-                                                .set(if value.is_empty() { None } else { Some(value.to_owned()) });
-                                        }
-                                    />
-                                    <SelectInput
-                                        class_name="is-size-7-mobile pl-2".to_owned()
-                                        name="sort_kind".to_owned()
-                                        not_selected_text="Сортировка".to_owned()
-                                        options=sort_options.unwrap()
-                                        on_change=move |value: String| {
-                                            let sort_kind = if value.is_empty() { None } else { Some(value) };
-                                            tasks_resource.write().as_mut().map(|data|{
-                                                if let Ok(tasks) = data {
-                                                    tasks.sort_by(|task1, task2| sort_task(task1, task2, &sort_kind));
-                                                }
-                                            });
-                                        }
-                                    />
+                                    <Form method="GET" action="">
+                                        <SelectInput
+                                            class_name="is-size-7-mobile".to_owned()
+                                            name="filter".to_owned()
+                                            not_selected_text="Фильтр".to_owned()
+                                            options=filter_options.unwrap()
+                                            on_change=move |value: String| {
+                                                set_filter
+                                                    .set(if value.is_empty() { None } else { Some(value.to_owned()) });
+                                            }
+                                        />
+                                        <SelectInput
+                                            class_name="is-size-7-mobile pl-2".to_owned()
+                                            name="sort_kind".to_owned()
+                                            not_selected_text="Сортировка".to_owned()
+                                            options=sort_options.unwrap()
+                                            on_change=move |value: String| {
+                                                let sort_kind = if value.is_empty() { None } else { Some(value) };
+                                                tasks_resource.write().as_mut().map(|data|{
+                                                    if let Ok(tasks) = data {
+                                                        tasks.sort_by(|task1, task2| sort_task(task1, task2, &sort_kind));
+                                                    }
+                                                });
+                                            }
+                                        />
+
+                                        <Button
+                                            class_name="is-light is-size-7-mobile mx-4".to_owned()
+                                            label="Ok".to_owned()
+                                            loading=||false
+                                            on_click=move |_| {}
+                                            disabled=||false
+                                        />
+
+                                    </Form>
                                 </span>
 
                                 {if user.get().username.is_some() {
