@@ -31,7 +31,7 @@ pub mod ssr {
 
     pub fn create_token(user_id: i64, user_name: String) -> Result<String, ServerFnError> {
         let now = Utc::now();
-        let exp = now + Duration::hours(24);
+        let exp = now + Duration::hours(7 * 24);
 
         let claims = Claims {
             user_id,
@@ -116,7 +116,7 @@ pub async fn create_user(params: CreateUserParams) -> Result<User, ServerFnError
         ))?;
     }
 
-    let hash_pass = bcrypt::hash(params.password.to_owned().unwrap(), 12)
+    let hash_pass = bcrypt::hash(params.password.to_owned().unwrap(), 14)
         .map_err(|err| ServerFnError::new(format!("Failed hash password: {}", err)))?;
 
     let user = create_user_in_db(
