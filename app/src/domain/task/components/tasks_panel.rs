@@ -15,7 +15,7 @@ use crate::domain::user::model::user::User;
 pub fn TasksPanel() -> impl IntoView {
     let (filter, set_filter) = signal(Some("".to_owned()));
 
-    let user = use_context::<ReadSignal<User>>().unwrap();
+    let user_resource = use_context::<Resource<Result<User, ServerFnError>>>().unwrap();
 
     let query_map = use_query_map();
     let url_params =
@@ -28,6 +28,12 @@ pub fn TasksPanel() -> impl IntoView {
 
     let filter_options_resource = OnceResource::new(get_filter_options());
     let sort_options_resource = OnceResource::new(get_sort_options());
+
+    let (show_filter_submit, set_show_filter_submit) = signal(true);
+
+    Effect::new(move |_| {
+        set_show_filter_submit.set(false);
+    });
 
     view! {
         <div class="container is-size-7-mobile pt-5">
@@ -64,28 +70,39 @@ pub fn TasksPanel() -> impl IntoView {
                                             }
                                         />
 
-                                        <Button
-                                            class_name="is-light is-size-7-mobile mx-4".to_owned()
-                                            label="Ok".to_owned()
-                                            loading=||false
-                                            on_click=move |_| {}
-                                            disabled=||false
-                                        />
+
+                                        <Show
+                                            when=show_filter_submit
+                                            fallback=|| view! {  }
+                                        >
+                                            <Button
+                                                class_name="is-light is-size-7-mobile mx-4".to_owned()
+                                                label="Ok".to_owned()
+                                                loading=||false
+                                                on_click=move |_| {}
+                                                disabled=||false
+                                            />
+                                        </Show>
+
 
                                     </Form>
                                 </span>
 
-                                {if user.get().username.is_some() {
-                                    view! {
-                                        <ButtonLink
-                                            class_name="level-item is-light is-size-7-mobile".to_owned()
-                                            href=TaskRoutes::create_url().to_owned()
-                                            label="+".to_owned()
-                                        />
-                                    }.into_any()
-                                } else {
-                                    view! { <span></span> }.into_any()
-                                }}
+                                {move || user_resource.get().map(|data| {
+                                    let user = data.ok().unwrap_or_default();
+                                    if user.username.is_some() {
+                                        view! {
+                                            <ButtonLink
+                                                class_name="level-item is-light is-size-7-mobile".to_owned()
+                                                href=TaskRoutes::create_url().to_owned()
+                                                label="+".to_owned()
+                                            />
+                                        }.into_any()
+                                    } else {
+                                        view! { <span></span> }.into_any()
+                                    }
+                                })}
+
 
                         }.into_any()
                     })}

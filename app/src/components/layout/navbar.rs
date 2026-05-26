@@ -1,15 +1,13 @@
 use leptos::prelude::*;
 use leptos_router::hooks::use_query_map;
 
-use crate::{
-    components::{
-        layout::message_banner::{Messages, show_info},
-        ui::{button::Button, button_link::ButtonLink},
-    },
-    domain::{home::routing::routes::HomeRoutes, user::{
-        model::user::User, routing::routes::UserRoutes, user_services::{Logout, auth_data}
-    }},
-};
+use crate::components::layout::message_banner::{Messages, show_info};
+use crate::components::ui::button::Button;
+use crate::components::ui::button_link::ButtonLink;
+use crate::domain::home::routing::routes::HomeRoutes;
+use crate::domain::user::model::user::User;
+use crate::domain::user::routing::routes::UserRoutes;
+use crate::domain::user::user_services::{Logout, auth_data};
 
 #[component]
 pub fn Navbar() -> impl IntoView {
@@ -23,6 +21,7 @@ pub fn Navbar() -> impl IntoView {
     let auth = move || query_map.with(|m| m.get("auth"));
 
     let user_resource = Resource::new_blocking(auth, |_s| async move { auth_data().await });
+    provide_context(user_resource);
 
     let (user, set_user) = signal(User::default());
     provide_context(user);
@@ -107,7 +106,7 @@ pub fn Navbar() -> impl IntoView {
                                                     />
                                                 </div>
                                         }.into_any()
-                                }                        
+                                }
                             })}
                         </Transition>
                     </div>

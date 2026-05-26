@@ -16,7 +16,7 @@ pub fn SelectInput(
             <select
                 id = {name.to_owned()}
                 name = {name}
-                prop:value = {value}
+                prop:value = {value.to_owned()}
                 on:change=move |ev| {
                     let val = event_target_value(&ev);
                     on_change.run(val)
@@ -27,7 +27,7 @@ pub fn SelectInput(
                 {
                     options.into_iter()
                     .map(|option| view! { 
-                        <option value={option.0}>{option.1}</option>
+                        <option value={option.0.to_owned()} selected={option.0 == Some(value.to_owned())}>{option.1}</option>
                     }).collect::<Vec<_>>()
                 }
 
