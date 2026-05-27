@@ -21,12 +21,21 @@ COPY .sqlx ./.sqlx
 
 RUN cargo leptos build --release -vv
 
-FROM alpine:3.22.4 AS runner
+
+### Additional compression with UPX
+FROM alpine:3.19 AS compressor
+RUN apk add --no-cache upx
+
+COPY --from=builder /work/target/release/server /server
+RUN upx --best --lzma /server
+
+#FROM alpine:3.22.4 AS runner
+FROM scratch AS runner
 
 WORKDIR /app
 
 COPY --from=builder /work/site /app/site
-COPY --from=builder /work/target/release/server /app/
+COPY --from=compressor /server /app/
 COPY --from=builder /work/Cargo.toml /app/
 COPY --from=builder /work/server/migrations /app/
 
