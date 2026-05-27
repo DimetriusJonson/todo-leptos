@@ -4,6 +4,7 @@ use std::{env, thread};
 
 use dotenv::dotenv;
 use leptos::prelude::*;
+use log::{error, info};
 use tracing_log::LogTracer;
 use tracing_subscriber::{EnvFilter, FmtSubscriber};
 
@@ -22,11 +23,6 @@ async fn main() -> anyhow::Result<()> {
     let env_file_name = format!(".env.{}", environment);
     println!("environment={}, env_file_name={}", environment, env_file_name);
 
-    match thread::available_parallelism() {
-        Ok(n) => println!("Available parallelism: {}", n),
-        Err(e) => eprintln!("Error getting parallelism: {}", e),
-    }
-
     dotenv().ok();
     dotenvy::from_filename_override(env_file_name).ok();
 
@@ -42,14 +38,18 @@ async fn main() -> anyhow::Result<()> {
 
     tracing::subscriber::set_global_default(subscriber).expect("Could not set subscriber");
 
-    let conf = get_configuration(None)?;
+    match thread::available_parallelism() {
+        Ok(n) => info!("Available parallelism: {}", n),
+        Err(e) => error!("Error getting parallelism: {}", e),
+    }
 
+    let conf = get_configuration(None)?;
     let addr = conf.leptos_options.site_addr;
 
     let pool = create_pool().await?;
 
     let app = build_app_router(conf, pool).await?;
-    println!("listening on http://{}", &addr);
+    info!("listening on http://{}", &addr);
     let listener = tokio::net::TcpListener::bind(addr).await?;
     axum::serve(listener, app).await.unwrap();
     Ok(())
