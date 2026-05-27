@@ -1,4 +1,4 @@
-FROM rustlang/rust:nightly-alpine AS builder
+FROM rust:1.95.0-alpine3.23 AS builder
 
 RUN apk update && \
     apk add --no-cache bash curl libc-dev binaryen
