@@ -1,8 +1,6 @@
 use std::cmp::Ordering;
 use std::sync::OnceLock;
 
-use chrono::Utc;
-use regex::Regex;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
@@ -19,7 +17,10 @@ pub struct Task {
 }
 
 impl Task {
+    #[cfg(feature = "ssr")]
     pub fn fix_completed_at(&mut self) -> &mut Self {
+        use chrono::Utc;
+
         if let Some(completed_at) = &self.completed_at {
             if completed_at == "on" || completed_at == "true" || completed_at == "checked" {
                 self.completed_at = Some(Utc::now().fixed_offset().to_rfc2822());
@@ -49,9 +50,9 @@ impl Task {
     }
 }
 
-pub fn title_regex() -> &'static Regex {
-    static RE_POSTAL_CODE: OnceLock<Regex> = OnceLock::new();
-    RE_POSTAL_CODE.get_or_init(|| Regex::new("^[А-Яа-яA-Za-z0-9 ]{3,}$").unwrap())
+pub fn title_regex() -> &'static regex::Regex {
+    static RE_POSTAL_CODE: OnceLock<regex::Regex> = OnceLock::new();
+    RE_POSTAL_CODE.get_or_init(|| regex::Regex::new("^[А-Яа-яA-Za-z0-9 ]{3,}$").unwrap())
 }
 
 pub fn filter_task(task: &Task, filter: &Option<String>) -> bool {

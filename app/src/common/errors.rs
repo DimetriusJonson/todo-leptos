@@ -1,15 +1,26 @@
 use http::status::StatusCode;
 use leptos::prelude::*;
+use std::error::Error;
+use std::fmt::Display;
+
 #[cfg(feature = "ssr")]
 use leptos_axum::ResponseOptions;
-use thiserror::Error;
 
-#[derive(Debug, Clone, Error)]
+#[derive(Debug, Clone)]
 pub enum AppError {
-    #[error("Not Found: {0}")]
     NotFound(String),
-    #[error("Internal Server Error")]
     InternalServerError,
+}
+
+impl Error for AppError {}
+
+impl Display for AppError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            AppError::NotFound(msg) => write!(f, "Not Found: {}", msg),
+            AppError::InternalServerError => write!(f, "Internal Server Error"),
+        }
+    }
 }
 
 impl AppError {
@@ -43,8 +54,7 @@ pub fn ErrorBoundary(
     #[cfg(feature = "ssr")]
     let response = use_context::<ResponseOptions>();
     #[cfg(feature = "ssr")]
-    if let Some(response) = response
-    {
+    if let Some(response) = response {
         if !errors.is_empty() {
             response.set_status(errors[0].status_code());
         }

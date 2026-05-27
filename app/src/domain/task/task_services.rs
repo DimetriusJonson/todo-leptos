@@ -3,7 +3,7 @@ use leptos::server_fn::ServerFnError;
 use leptos::server_fn::codec::{GetUrl, Json, PostUrl};
 
 use crate::components::ui::select_input::SelectOption;
-use crate::domain::task::model::task::{Task, filter_task, sort_task};
+use crate::domain::task::model::task::{Task};
 
 #[server(GetTask, "/api", input = GetUrl, output = Json)]
 pub async fn get_task(id: i64) -> Result<Task, ServerFnError> {
@@ -51,6 +51,7 @@ pub async fn get_tasks(
     use super::task_db::db::*;
     use crate::common::app_state::ssr::*;
     use crate::domain::user::user_services::ssr::get_current_user;
+    use crate::domain::task::model::task::{filter_task, sort_task};
 
     //tokio::time::sleep(std::time::Duration::from_millis(500)).await;
 
