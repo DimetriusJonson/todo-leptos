@@ -16,6 +16,7 @@ use leptos_axum::{
     LeptosRoutes, generate_route_list, handle_server_fns_with_context,
     render_app_to_stream_with_context,
 };
+use tower_http::compression::CompressionLayer;
 use tower_http::trace::TraceLayer;
 
 use crate::fallback::file_and_error_handler;
@@ -32,11 +33,13 @@ pub async fn build_app_router(conf_file: ConfFile, pool: DbPool) -> anyhow::Resu
     let app_state = AppState { leptos_options, pool: pool.clone() };
 
     Ok(Router::new()
+        //.fallback_service(static_service)
         .route("/api/{*fn_name}", get(server_fn_handler).post(server_fn_handler))
         // .layer(PropertyAccessLayer::new()) // custom middleware for properties
         .leptos_routes_with_handler(routes, get(leptos_routes_handler))
         .route_layer(middleware::from_fn_with_state(app_state.clone(), check_auth_token))
         .fallback(file_and_error_handler)
+        .layer(CompressionLayer::new().gzip(true))
         .layer(TraceLayer::new_for_http())
         .with_state(app_state))
 }
