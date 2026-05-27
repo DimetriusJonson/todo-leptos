@@ -1,6 +1,6 @@
 #![recursion_limit = "256"]
 
-use std::env;
+use std::{env, thread};
 
 use dotenv::dotenv;
 use leptos::prelude::*;
@@ -21,6 +21,11 @@ async fn main() -> anyhow::Result<()> {
     let environment = env::var("APP_ENV").unwrap_or_else(|_| "dev".to_string());
     let env_file_name = format!(".env.{}", environment);
     println!("environment={}, env_file_name={}", environment, env_file_name);
+
+    match thread::available_parallelism() {
+        Ok(n) => println!("Available parallelism: {}", n),
+        Err(e) => eprintln!("Error getting parallelism: {}", e),
+    }
 
     dotenv().ok();
     dotenvy::from_filename_override(env_file_name).ok();
