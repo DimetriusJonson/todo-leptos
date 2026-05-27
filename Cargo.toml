@@ -3,8 +3,6 @@ resolver = "2"
 members = ["app", "server"]
 
 [workspace.dependencies]
-leptos_ui = "0.3"
-icons = { version = "0.18", features = ["leptos"] }
 
 anyhow = "1"
 axum = { version = "0.8", features = ["macros"] }
