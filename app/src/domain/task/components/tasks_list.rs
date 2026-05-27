@@ -14,6 +14,11 @@ pub fn TasksList(filter: ReadSignal<Option<String>>) -> impl IntoView {
 
     let tasks_resource = use_context::<Resource<Result<Vec<Task>, ServerFnError>>>().unwrap();
 
+    let (change_completed_in_progress, set_change_completed_in_progress) = signal(true);
+    Effect::new(move |_| {
+        set_change_completed_in_progress.set(false);
+    });
+
     let completed_on_change = move |event: Event| {
         event.prevent_default();
 
@@ -25,9 +30,9 @@ pub fn TasksList(filter: ReadSignal<Option<String>>) -> impl IntoView {
         if let Some(index_und) = name.find('_') {
             if let Ok(id) = name[index_und + 1..].parse::<i64>() {
                 spawn_local(async move {
-                    checkbox.set_disabled(true);
+                    set_change_completed_in_progress.set(true);
                     let res = change_completed_task(id, value).await;
-                    checkbox.set_disabled(false);
+                    set_change_completed_in_progress.set(false);
                     match res {
                         Ok(saved_task) => {
                             checkbox.set_checked(saved_task.completed_at.is_some());
@@ -99,6 +104,7 @@ pub fn TasksList(filter: ReadSignal<Option<String>>) -> impl IntoView {
                                                         None => "".to_owned(),
                                                     }
                                                     on:change=completed_on_change
+                                                    disabled=move || change_completed_in_progress.get()
                                                 />
                                             </td>
                                             <td>
