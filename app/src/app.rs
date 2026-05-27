@@ -1,6 +1,8 @@
+use std::time::Duration;
+
 use leptos::prelude::*;
 use leptos_meta::{MetaTags, Stylesheet, Title, provide_meta_context};
-use leptos_router::components::{Outlet, ParentRoute, Route, Router, Routes};
+use leptos_router::components::{Outlet, ParentRoute, Route, Router, Routes, RoutingProgress};
 use leptos_router::{StaticSegment, path};
 
 use crate::components::layout::message_banner::MessageBanner;
@@ -37,6 +39,8 @@ pub fn App() -> impl IntoView {
     // Provides context that manages stylesheets, titles, meta tags, etc.
     provide_meta_context();
 
+    let (is_routing, set_is_routing) = signal(false);
+
     view! {
         // injects a stylesheet into the document <head>
         // id=leptos means cargo-leptos will hot-reload this stylesheet
@@ -45,13 +49,18 @@ pub fn App() -> impl IntoView {
 
         <Title text="TODO"/>
 
-        <section class="section p-0">
-            <div class="is-paddingless">
-                <Router>
+        <Router set_is_routing>
+
+            <div class="progress-container pt-0 mt-0">
+                <RoutingProgress is_routing max_time=Duration::from_millis(250) />
+            </div>
+
+            <section class="section p-0">
+                <div class="is-paddingless">
                     <main>
                         <MessageBanner />
                         <Navbar />
-                        <Routes fallback=|| "Page not found.".into_view()>
+                        <Routes transition=true fallback=|| "Page not found.".into_view()>
                             <ParentRoute path=path!("/") view=Outlet>
 
                                 <ParentRoute path=StaticSegment(UserRoutes::base_segment()) view=Outlet>
@@ -70,8 +79,8 @@ pub fn App() -> impl IntoView {
                             </ParentRoute>
                         </Routes>
                     </main>
-                </Router>
-            </div>
-        </section>
+                </div>
+            </section>
+        </Router>
     }
 }
