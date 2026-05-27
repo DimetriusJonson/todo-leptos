@@ -2,7 +2,7 @@ use leptos::prelude::*;
 
 #[component]
 pub fn MainTitle(
-    title: String,
+    title: impl Fn() -> String + Send + Sync + 'static,
     #[prop(optional)] class_name: String,
 ) -> impl IntoView {
     view! {

@@ -75,8 +75,8 @@ pub fn Navbar() -> impl IntoView {
                                                     <Button
                                                         class_name="is-warning is-light".to_owned()
                                                         label={format!("Выйти {}", user_name)}
-                                                        loading=logout.pending()
-                                                        disabled=logout.pending()
+                                                        loading=move || logout.pending().get()
+                                                        disabled=move || logout.pending().get()
                                                         on_click=move |_| {}
                                                     />
                                                 </ActionForm>

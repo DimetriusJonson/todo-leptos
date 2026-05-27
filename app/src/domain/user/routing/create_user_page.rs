@@ -30,7 +30,7 @@ pub fn CreateUserPage() -> impl IntoView {
 
     view! {
         <div class="container p-4">
-            <MainTitle title="Создать пользователя".to_owned() />
+            <MainTitle title=|| "Создать пользователя".to_owned() />
             <ActionForm action=create_user>
                 <input name="params[version]" type="hidden" value={move || create_user.version().get()} />
 
@@ -56,9 +56,9 @@ pub fn CreateUserPage() -> impl IntoView {
                             <Button
                                 class_name="is-primary".to_owned()
                                 label="Создать".to_owned()
-                                loading=create_user.pending()
+                                loading=move || create_user.pending().get()
                                 on_click=move |_| {}
-                                disabled=create_user.pending()
+                                disabled=move || create_user.pending().get()
                             />
                         </div>
                     </div>

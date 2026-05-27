@@ -89,7 +89,7 @@ pub fn TaskDetails(task: Task) -> impl IntoView {
                 <Button
                     class_name="is-danger is-light is-size-7-mobile".to_owned()
                     label="Удалить".to_owned()
-                    loading=delete_task.pending()
+                    loading=move || delete_task.pending().get()
                     disabled=move || task.id.is_none() || delete_task.pending().get()
                     on_click=move |_| {}
                 />

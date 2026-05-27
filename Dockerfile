@@ -14,9 +14,10 @@ COPY server ./server
 COPY public ./public
 COPY style ./style
 COPY Cargo.toml ./
+COPY Cargo.lock ./
 COPY .env.docker ./.env
 COPY .sqlx ./.sqlx
-COPY rust-toolchain.toml ./
+#COPY rust-toolchain.toml ./
 
 RUN cargo leptos build --release -vv
 

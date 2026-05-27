@@ -72,7 +72,7 @@ pub fn TasksPanel() -> impl IntoView {
 
 
                                         <Show
-                                            when=show_filter_submit
+                                            when=move || show_filter_submit.get()
                                             fallback=|| view! {  }
                                         >
                                             <Button

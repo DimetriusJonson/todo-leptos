@@ -34,7 +34,7 @@ pub fn LoginPage() -> impl IntoView {
 
     view! {
         <div class="container p-4">
-            <MainTitle title="Вход в систему".to_owned() />
+            <MainTitle title=|| "Вход в систему".to_owned() />
 
             <ActionForm action=login>
                 <input name="params[version]" type="hidden" value={move || login.version().get()} />
@@ -65,9 +65,9 @@ pub fn LoginPage() -> impl IntoView {
                             <Button
                                 class_name="is-primary".to_owned()
                                 label="Войти".to_owned()
-                                loading=login.pending()
+                                loading=move || login.pending().get()
                                 on_click=move |_| {}
-                                disabled=login.pending()
+                                disabled=move || login.pending().get()
                             />
                         </div>
                     </div>
