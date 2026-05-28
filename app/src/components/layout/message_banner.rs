@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use leptos::prelude::*;
-use web_sys::HtmlButtonElement;
+use web_sys::HtmlElement;
 
 #[derive(Debug, Clone, Default)]
 struct MessageBannerItem {
@@ -37,7 +37,7 @@ pub fn MessageBanner() -> impl IntoView {
                             class="delete is-small"
                             id={format!("m_{}", msg.id)}
                             on:click={move |event| {
-                                let id_str = event_target::<HtmlButtonElement>(&event).id().to_string();
+                                let id_str = event_target::<HtmlElement>(&event).id().to_string();
                                 if let Some(pos) = id_str.find('_') {
                                     let id = &id_str[pos + 1..];
                                     remove_message(id, messages);
@@ -63,11 +63,7 @@ fn show_message(msg: String, kind: String, active_time: Duration, messages: Mess
     use uuid::Uuid;
 
     let id = Uuid::new_v4().to_string();
-    messages.0.write().push(MessageBannerItem {
-        id: id.to_owned(),
-        msg,
-        kind,
-    });
+    messages.0.write().push(MessageBannerItem { id: id.to_owned(), msg, kind });
 
     set_timeout(
         move || {
