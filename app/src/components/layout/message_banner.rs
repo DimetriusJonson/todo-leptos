@@ -79,8 +79,7 @@ pub fn MessageBanner() -> impl IntoView {
                                     on:click={move |event| {
                                         let id_str = event_target::<HtmlElement>(&event).id().to_string();
                                         if let Some(pos) = id_str.find('_') {
-                                            let id = &id_str[pos + 1..];
-                                            remove_message(id, messages);
+                                            set_message_state(MessageBannerState::InHide, &id_str[pos + 1..], messages);
                                         }
                                     }}
                                 ></button>
@@ -112,32 +111,21 @@ fn show_message(msg: String, kind: String, active_time: Duration, messages: Mess
     });
 
     let cloned_id = id.to_owned();
-    let cloned_id_2 = id.to_owned();
-
     set_timeout(
-        move || {
-            remove_message(&cloned_id, messages);
-        },
+        move || set_message_state(MessageBannerState::InHide, &cloned_id, messages),
         active_time,
     );
 
     set_timeout(
-        move || {
-            for msg in messages.0.write().iter_mut() {
-                if msg.id == cloned_id_2 {
-                    msg.state = MessageBannerState::InShow;
-                    break;
-                }
-            }
-        },
+        move || set_message_state(MessageBannerState::InShow, &id, messages),
         Duration::from_millis(50),
     );
 }
 
-fn remove_message(id: &str, messages: Messages) {
+fn set_message_state(state: MessageBannerState, id: &str, messages: Messages) {
     for msg in messages.0.write().iter_mut() {
         if msg.id == id {
-            msg.state = MessageBannerState::InHide;
+            msg.state = state;
             break;
         }
     }
