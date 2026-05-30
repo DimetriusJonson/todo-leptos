@@ -6,7 +6,7 @@ use crate::{
     },
     components::ui::select_input::SelectInput,
 };
-use leptos::{leptos_dom::logging::console_log, prelude::*};
+use leptos::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 use validator::Validate;
@@ -38,7 +38,6 @@ where
                     let field_name = extract_form_field_name(name.to_owned());
                     move |event| {
                         let value = event_target_value(&event);
-                        console_log(&format!("select input val={}", value));
                         set_validation_errors.write().insert(field_name.to_owned(), validate_field_value(field_name.to_owned(), value, form_data.clone()));
                     }
                 }
