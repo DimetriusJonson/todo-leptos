@@ -62,19 +62,13 @@ pub fn TasksPanel() -> impl IntoView {
                                             options=sort_options.unwrap()
                                             on_change=move |value: String| {
                                                 let sort_kind = if value.is_empty() { None } else { Some(value) };
-                                                tasks_resource.write().as_mut().map(|data|{
-                                                    if let Ok(tasks) = data {
-                                                        tasks.sort_by(|task1, task2| sort_task(task1, task2, &sort_kind));
-                                                    }
-                                                });
+                                                if let Some(data) = tasks_resource.write().as_mut() && let Ok(tasks) = data {
+                                                    tasks.sort_by(|task1, task2| sort_task(task1, task2, &sort_kind));
+                                                 }
                                             }
                                         />
 
-
-                                        <Show
-                                            when=move || show_filter_submit.get()
-                                            fallback=|| view! {  }
-                                        >
+                                        <Show when=move || show_filter_submit.get()>
                                             <Button
                                                 class_name="is-light is-size-7-mobile mx-4".to_owned()
                                                 label="Ok".to_owned()

@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 
-use leptos::leptos_dom::logging::console_log;
 use leptos::prelude::*;
 use leptos_router::hooks::use_params_map;
 use validator::Validate;
@@ -78,14 +77,12 @@ pub fn TaskEditForm(
 
     view! {
         <ActionForm action=update_or_create_task on:input=move |_| {update_or_create_task.clear()} on:submit:capture=move |event| {
-                if let Ok(data) = UpdateOrCreateTask::from_event(&event) {
-                    if let Some(task) = data.task {
-                        if let Err(validation_errors) = task.validate() {
-                            set_validation_errors.set(validation_errors_to_map(validation_errors));
-                            event.prevent_default();
-                        } else {
-                            return;
-                        }
+                if let Ok(data) = UpdateOrCreateTask::from_event(&event) && let Some(task) = data.task {
+                    if let Err(validation_errors) = task.validate() {
+                        set_validation_errors.set(validation_errors_to_map(validation_errors));
+                        event.prevent_default();
+                    } else {
+                        return;
                     }
                 }
                 event.prevent_default();

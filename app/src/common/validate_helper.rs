@@ -3,7 +3,7 @@ use std::{
     collections::{BTreeMap, HashMap},
 };
 
-use leptos::reactive::{traits::Get, wrappers::read::Signal};
+use leptos::reactive::wrappers::read::Signal;
 use leptos::server_fn::ServerFnError;
 use leptos::{leptos_dom::logging::console_log, reactive::traits::Read};
 use serde::{Deserialize, Serialize};
@@ -83,7 +83,7 @@ pub fn ui_extract_field_errors(
     validation_errors: Signal<HashMap<String, Vec<String>>>,
 ) -> Option<Vec<String>> {
     let all_errors = validation_errors.read();
-    all_errors.get(name).and_then(|c| Some(c.into_iter().map(|e| e.to_owned()).collect()))
+    all_errors.get(name).map(|c| c.iter().map(|e| e.to_owned()).collect())
 }
 
 pub fn transform_validation_errors(validation_errors: ValidationErrors) -> ValidationErrors {
@@ -155,10 +155,10 @@ where
     if let Ok(json_value) = serde_json::to_value(default_map) {
         match serde_json::from_value::<T>(json_value) {
             Ok(entity) => {
-                if let Err(validation_errors) = entity.validate() {
-                    if let Some(errors_kind) = validation_errors.0.get(field_name.as_str()) {
-                        errors = validation_errors_kind_to_list(errors_kind);
-                    }
+                if let Err(validation_errors) = entity.validate()
+                    && let Some(errors_kind) = validation_errors.0.get(field_name.as_str())
+                {
+                    errors = validation_errors_kind_to_list(errors_kind);
                 }
             }
             Err(err) => console_log(&format!("from_value error={}", &err)),
@@ -167,7 +167,7 @@ where
     errors
 }
 
-pub fn extract_form_field_name<'a>(name: String) -> String {
+pub fn extract_form_field_name(name: String) -> String {
     match (name.find('['), name.find(']')) {
         (Some(pos_start), Some(pos_end)) => name[pos_start + 1..pos_end].to_owned(),
         _ => "".to_owned(),
@@ -190,7 +190,7 @@ pub fn validation_errors_to_map(
 pub fn validation_errors_kind_to_list(errors_kind: &ValidationErrorsKind) -> Vec<String> {
     match errors_kind {
         validator::ValidationErrorsKind::Field(field_errors) => field_errors
-            .into_iter()
+            .iter()
             .map(|e| transform_error_message(e).unwrap_or(Cow::Borrowed("error")).into_owned())
             .collect::<Vec<String>>(),
         _ => Vec::new(),

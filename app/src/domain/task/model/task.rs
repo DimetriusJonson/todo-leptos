@@ -20,10 +20,10 @@ impl Task {
     pub fn fix_completed_at(&mut self) -> &mut Self {
         use chrono::Utc;
 
-        if let Some(completed_at) = &self.completed_at {
-            if completed_at == "on" || completed_at == "true" || completed_at == "checked" {
-                self.completed_at = Some(Utc::now().fixed_offset().to_rfc2822());
-            }
+        if let Some(completed_at) = &self.completed_at
+            && (completed_at == "on" || completed_at == "true" || completed_at == "checked")
+        {
+            self.completed_at = Some(Utc::now().fixed_offset().to_rfc2822());
         }
 
         self

@@ -74,10 +74,10 @@ pub mod ssr {
             headers.get("Referer").and_then(|h| h.to_str().ok()).unwrap_or("").to_string();
 
         let extensions = extract::<Extensions>().await?;
-        if let Some(security_context) = extensions.get::<SecurityContext>() {
-            if let Some(user) = &security_context.user {
-                return Ok(Some(user.clone()));
-            }
+        if let Some(security_context) = extensions.get::<SecurityContext>()
+            && let Some(user) = &security_context.user
+        {
+            return Ok(Some(user.clone()));
         }
 
         if redirect_to_login {
@@ -106,9 +106,10 @@ pub async fn create_user(params: CreateUserParams) -> Result<User, ServerFnError
 
     let app_state = use_app_state()?;
 
-    if let Some(_) = get_user_by_name_from_db(&app_state.pool, params.name.to_owned())
+    if get_user_by_name_from_db(&app_state.pool, params.name.to_owned())
         .await
         .map_err(ServerFnError::new)?
+        .is_some()
     {
         return Err(ApiError::validation_field(
             "name",
@@ -186,7 +187,7 @@ pub async fn login(params: LoginParams) -> Result<User, ServerFnError> {
             Err(ServerFnError::new("Неверное имя пользователя или пароль!"))
         }
     } else {
-        return Err(ServerFnError::new("Не найден пользователь!"));
+        Err(ServerFnError::new("Не найден пользователь!"))
     }
 }
 
@@ -225,7 +226,7 @@ pub async fn logout() -> Result<bool, ServerFnError> {
     use crate::domain::home::routing::routes::HomeRoutes;
     use crate::domain::user::user_db::db::*;
 
-    if let Some(_) = get_current_user(false).await? {
+    if get_current_user(false).await?.is_some() {
         let response_options = use_context::<leptos_axum::ResponseOptions>().unwrap();
 
         let app_state = use_app_state()?;

@@ -27,43 +27,36 @@ pub fn TasksList(filter: ReadSignal<Option<String>>) -> impl IntoView {
         let value = checkbox.checked();
         checkbox.set_checked(!value);
 
-        if let Some(index_und) = name.find('_') {
-            if let Ok(id) = name[index_und + 1..].parse::<i64>() {
-                spawn_local(async move {
-                    set_change_completed_in_progress.set(true);
-                    let res = change_completed_task(id, value).await;
-                    set_change_completed_in_progress.set(false);
-                    match res {
-                        Ok(saved_task) => {
-                            checkbox.set_checked(saved_task.completed_at.is_some());
+        if let Some(index_und) = name.find('_')
+            && let Ok(id) = name[index_und + 1..].parse::<i64>()
+        {
+            spawn_local(async move {
+                set_change_completed_in_progress.set(true);
+                let res = change_completed_task(id, value).await;
+                set_change_completed_in_progress.set(false);
+                match res {
+                    Ok(saved_task) => {
+                        checkbox.set_checked(saved_task.completed_at.is_some());
 
-                            tasks_resource.write().as_mut().map(|data| {
-                                if let Ok(tasks) = data {
-                                    if let Some(found_task) =
-                                        tasks.iter_mut().find(|t| t.id == Some(id))
-                                    {
-                                        found_task.completed_at = saved_task.completed_at;
-                                        show_info(
-                                            format!(
-                                                "Задача {} сохранена.",
-                                                found_task.id.unwrap_or_default()
-                                            ),
-                                            messages,
-                                        );
-                                    }
-                                }
-                            });
-                        }
-                        Err(err) => {
-                            let msg = match err {
-                                ServerFnError::ServerError(err) => err,
-                                _ => err.to_string(),
-                            };
-                            show_error(msg, messages);
+                        if let Some(Ok(tasks)) = tasks_resource.write().as_mut()
+                            && let Some(found_task) = tasks.iter_mut().find(|t| t.id == Some(id))
+                        {
+                            found_task.completed_at = saved_task.completed_at;
+                            show_info(
+                                format!("Задача {} сохранена.", found_task.id.unwrap_or_default()),
+                                messages,
+                            );
                         }
                     }
-                });
-            }
+                    Err(err) => {
+                        let msg = match err {
+                            ServerFnError::ServerError(err) => err,
+                            _ => err.to_string(),
+                        };
+                        show_error(msg, messages);
+                    }
+                }
+            });
         }
     };
 

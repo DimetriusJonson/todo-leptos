@@ -3,7 +3,7 @@ use leptos::server_fn::ServerFnError;
 use leptos::server_fn::codec::{GetUrl, Json, PostUrl};
 
 use crate::components::ui::select_input::SelectOption;
-use crate::domain::task::model::task::{Task};
+use crate::domain::task::model::task::Task;
 
 #[server(GetTask, "/api", input = GetUrl, output = Json)]
 pub async fn get_task(id: i64) -> Result<Task, ServerFnError> {
@@ -50,8 +50,8 @@ pub async fn get_tasks(
 ) -> Result<Vec<Task>, ServerFnError> {
     use super::task_db::db::*;
     use crate::common::app_state::ssr::*;
-    use crate::domain::user::user_services::ssr::get_current_user;
     use crate::domain::task::model::task::{filter_task, sort_task};
+    use crate::domain::user::user_services::ssr::get_current_user;
 
     //tokio::time::sleep(std::time::Duration::from_millis(500)).await;
 
@@ -96,31 +96,28 @@ pub async fn update_or_create_task(task: Option<Task>) -> Result<Task, ServerFnE
             get_task_by_title_from_db(&app_state.pool, &task.title, user.id.unwrap())
                 .await
                 .map_err(ServerFnError::new)?
+            && found_task.id != task.id
         {
-            if found_task.id != task.id {
-                return Err(ApiError::validation_field(
-                    "title",
-                    "TaskAlreadyExist",
-                    "Задача с таким названием уже существует!",
-                ))?;
-            }
+            return Err(ApiError::validation_field(
+                "title",
+                "TaskAlreadyExist",
+                "Задача с таким названием уже существует!",
+            ))?;
         }
 
-        let saved_task;
-        if task.id.is_some() {
-            saved_task =
-                update_task_in_db(&app_state.pool, &Task { ..task }.fix_completed_at(), user.id)
-                    .await
-                    .map_err(ServerFnError::new)?;
+        let saved_task = if task.id.is_some() {
+            update_task_in_db(&app_state.pool, Task { ..task }.fix_completed_at(), user.id)
+                .await
+                .map_err(ServerFnError::new)?
         } else {
-            saved_task = create_task_in_db(
+            create_task_in_db(
                 &app_state.pool,
-                &Task { ..task }.fix_completed_at(),
+                Task { ..task }.fix_completed_at(),
                 user.id.unwrap(),
             )
             .await
-            .map_err(ServerFnError::new)?;
-        }
+            .map_err(ServerFnError::new)?
+        };
 
         leptos_axum::redirect(&format!("/task/{}", saved_task.id.unwrap()));
         return Ok(saved_task);
@@ -147,9 +144,9 @@ pub async fn change_completed_task(id: i64, completed: bool) -> Result<Task, Ser
                 false => None,
             };
 
-            return Ok(update_task_in_db(&app_state.pool, task.fix_completed_at(), user.id)
+            return update_task_in_db(&app_state.pool, task.fix_completed_at(), user.id)
                 .await
-                .map_err(ServerFnError::new)?);
+                .map_err(ServerFnError::new);
         } else {
             return Err(AppError::NotFound("Задача не найдена!".to_owned()))?;
         }

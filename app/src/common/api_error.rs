@@ -24,13 +24,12 @@ impl ApiError {
     ) -> Self {
         let mut errors = ValidationErrors::new();
         errors.add(field, ValidationError::new(code).with_message(Cow::Borrowed(message)));
-        return Self::Validation(errors);
+        Self::Validation(errors)
     }
 
     pub fn validation(validation_errors: ValidationErrors) -> Self {
-        return Self::Validation(transform_validation_errors(validation_errors));
+        Self::Validation(transform_validation_errors(validation_errors))
     }
-
 }
 
 impl Display for ApiError {
