@@ -3,12 +3,11 @@ use std::error::Error;
 use std::fmt::Display;
 
 use leptos::server_fn::error::ServerFnErrorErr;
-use serde::{Deserialize, Serialize};
 use validator::{ValidationError, ValidationErrors};
 
 use crate::common::validate_helper::transform_validation_errors;
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq)]
 pub enum ApiError {
     UnAuthorized(String),
     Validation(ValidationErrors),
