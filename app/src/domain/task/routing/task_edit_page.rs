@@ -77,15 +77,14 @@ pub fn TaskEditForm(
 
     view! {
         <ActionForm action=update_or_create_task on:input=move |_| {update_or_create_task.clear()} on:submit:capture=move |event| {
-                if let Ok(data) = UpdateOrCreateTask::from_event(&event) && let Some(task) = data.task {
-                    if let Err(validation_errors) = task.validate() {
+                if let Ok(params) = UpdateOrCreateTask::from_event(&event) {
+                    if let Err(validation_errors) = params.validate() {
                         set_validation_errors.set(validation_errors_to_map(validation_errors));
                         event.prevent_default();
-                    } else {
-                        return;
                     }
+                } else {
+                    event.prevent_default();
                 }
-                event.prevent_default();
             }>
             <input type="hidden" name="task[id]" value=task.id />
 

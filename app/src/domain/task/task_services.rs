@@ -73,7 +73,7 @@ pub async fn get_tasks(
 }
 
 #[server]
-pub async fn update_or_create_task(task: Option<Task>) -> Result<Task, ServerFnError> {
+pub async fn update_or_create_task(task: Task) -> Result<Task, ServerFnError> {
     use validator::Validate;
 
     use super::task_db::db::*;
@@ -83,8 +83,6 @@ pub async fn update_or_create_task(task: Option<Task>) -> Result<Task, ServerFnE
 
     if let Some(user) = get_current_user(true).await? {
         let app_state = use_app_state()?;
-
-        let task = task.unwrap_or_default();
 
         let validate_result = task.validate();
         if let Err(validation_errors) = validate_result {
@@ -109,20 +107,16 @@ pub async fn update_or_create_task(task: Option<Task>) -> Result<Task, ServerFnE
                 .await
                 .map_err(ServerFnError::new)?
         } else {
-            create_task_in_db(
-                &app_state.pool,
-                Task { ..task }.fix_completed_at(),
-                user.id.unwrap(),
-            )
-            .await
-            .map_err(ServerFnError::new)?
+            create_task_in_db(&app_state.pool, Task { ..task }.fix_completed_at(), user.id.unwrap())
+                .await
+                .map_err(ServerFnError::new)?
         };
 
         leptos_axum::redirect(&format!("/task/{}", saved_task.id.unwrap()));
         return Ok(saved_task);
     }
 
-    Ok(task.unwrap_or_default())
+    Ok(task)
 }
 
 #[server]
