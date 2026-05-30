@@ -3,11 +3,20 @@ use std::time::Duration;
 use leptos::prelude::*;
 use web_sys::HtmlElement;
 
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+enum MessageBannerState {
+    InShow,
+    InHide,
+    #[default]
+    None,
+}
+
 #[derive(Debug, Clone, Default)]
 struct MessageBannerItem {
     pub id: String,
     pub msg: String,
     pub kind: String,
+    pub state: MessageBannerState,
 }
 
 #[derive(Clone, Copy)]
@@ -28,24 +37,30 @@ pub fn MessageBanner() -> impl IntoView {
             style:z-index="1000"
         >
             {move || messages.0.get().into_iter()
-                .map(|msg| view! {
-                <p class="field">
-                    <span class={format!("tag is-medium {}", msg_style(&msg))}>
-                        {msg.msg.to_owned()}
-                        <button
-                            aria-label="x"
-                            class="delete is-small"
-                            id={format!("m_{}", msg.id)}
-                            on:click={move |event| {
-                                let id_str = event_target::<HtmlElement>(&event).id().to_string();
-                                if let Some(pos) = id_str.find('_') {
-                                    let id = &id_str[pos + 1..];
-                                    remove_message(id, messages);
-                                }
-                            }}
-                        ></button>
-                    </span>
-                </p>
+                .map(|msg| {
+                    let msg_state = msg.state.clone();
+                    view! {
+                        <p class="field message-box"
+                            class:messagebox=move || msg_state == MessageBannerState::InHide
+                            class:messagebox-show=move || msg.state == MessageBannerState::InShow
+                        >
+                            <span class={format!("tag is-medium {}", msg_style(&msg))}>
+                                {msg.msg.to_owned()}
+                                <button
+                                    aria-label="x"
+                                    class="delete is-small"
+                                    id={format!("m_{}", msg.id)}
+                                    on:click={move |event| {
+                                        let id_str = event_target::<HtmlElement>(&event).id().to_string();
+                                        if let Some(pos) = id_str.find('_') {
+                                            let id = &id_str[pos + 1..];
+                                            remove_message(id, messages);
+                                        }
+                                    }}
+                                ></button>
+                            </span>
+                        </p>
+                    }
                 }).collect::<Vec<_>>()}
         </div>
     }
@@ -63,20 +78,62 @@ fn show_message(msg: String, kind: String, active_time: Duration, messages: Mess
     use uuid::Uuid;
 
     let id = Uuid::new_v4().to_string();
-    messages.0.write().push(MessageBannerItem { id: id.to_owned(), msg, kind });
+    messages.0.write().push(MessageBannerItem {
+        id: id.to_owned(),
+        msg,
+        kind,
+        state: MessageBannerState::InHide,
+    });
+
+    let cloned_id = id.to_owned();
+    let cloned_id_2 = id.to_owned();
 
     set_timeout(
         move || {
-            remove_message(&id, messages);
+            remove_message(&cloned_id, messages);
         },
         active_time,
     );
+
+    set_timeout(
+        move || {
+            for msg in messages.0.write().iter_mut() {
+                if msg.id == cloned_id_2 {
+                    msg.state = MessageBannerState::InShow;
+                }
+            }
+        },
+        Duration::from_millis(1),
+    );
+
+    set_timeout(
+        move || {
+            for msg in messages.0.write().iter_mut() {
+                if msg.id == id {
+                    msg.state = MessageBannerState::None;
+                }
+            }
+        },
+        Duration::from_millis(300),
+    );
 }
 
-pub fn remove_message(id: &str, messages: Messages) {
-    let mut new_list = messages.0.get();
-    new_list.retain(|m| m.id != id);
-    messages.0.set(new_list);
+fn remove_message(id: &str, messages: Messages) {
+    let cloned_id = id.to_owned();
+    for msg in messages.0.write().iter_mut() {
+        if msg.id == id {
+            msg.state = MessageBannerState::InHide;
+        }
+    }
+
+    set_timeout(
+        move || {
+            let mut new_list = messages.0.get();
+            new_list.retain(|m| m.id != cloned_id);
+            messages.0.set(new_list);
+        },
+        Duration::from_millis(300),
+    );
 }
 
 fn msg_style(msg: &MessageBannerItem) -> String {

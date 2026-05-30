@@ -43,7 +43,7 @@ pub fn TasksList(filter: ReadSignal<Option<String>>) -> impl IntoView {
                         {
                             found_task.completed_at = saved_task.completed_at;
                             show_info(
-                                format!("Задача {} сохранена.", found_task.id.unwrap_or_default()),
+                                "Задача сохранена.".to_owned(),
                                 messages,
                             );
                         }

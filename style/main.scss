@@ -15,6 +15,16 @@
 	--bulma-danger-l: 60%;
 }
 
+.messagebox {
+  transform: scale(0); 
+  transition: transform 0.3s ease-in-out; 
+}
+
+.messagebox-show {
+  transition: transform 0.3s ease-in-out; 
+  transform: scale(1);  
+}
+
 /****************** Routing *********************/
 
 .progress-container {
