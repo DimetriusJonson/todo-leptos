@@ -3,9 +3,11 @@ use std::collections::HashMap;
 use leptos::prelude::*;
 use leptos_router::hooks::use_params_map;
 use validator::Validate;
+use web_sys::HtmlInputElement;
 
 use crate::common::validate_helper::{
-    ui_build_common_error, ui_build_validation_errors, validation_errors_to_map,
+    extract_form_field_name, ui_build_common_error, ui_build_validation_errors,
+    validate_field_value, validation_errors_to_map,
 };
 use crate::components::layout::message_banner::{Messages, show_info};
 use crate::components::ui::button::Button;
@@ -76,7 +78,8 @@ pub fn TaskEditForm(
     });
 
     view! {
-        <ActionForm action=update_or_create_task on:input=move |_| {update_or_create_task.clear()} on:submit:capture=move |event| {
+        <ActionForm action=update_or_create_task
+            on:submit:capture=move |event| {
                 if let Ok(params) = UpdateOrCreateTask::from_event(&event) {
                     if let Err(validation_errors) = params.validate() {
                         set_validation_errors.set(validation_errors_to_map(validation_errors));
@@ -85,7 +88,14 @@ pub fn TaskEditForm(
                 } else {
                     event.prevent_default();
                 }
-            }>
+            }
+            on:input=move |event| {
+                    let target = event_target::<HtmlInputElement>(&event);
+                    let field_name = extract_form_field_name(target.name().to_owned());
+                    set_validation_errors.write().insert(field_name.to_owned(), validate_field_value(field_name.to_owned(), target.value(), Task::default()));
+                    update_or_create_task.clear();
+                }
+        >
             <input type="hidden" name="task[id]" value=task.id />
 
             <div class="help is-danger is-size-5 py-4">{common_error}</div>
@@ -99,8 +109,6 @@ pub fn TaskEditForm(
                                 label="Приоритет:".to_owned()
                                 error_class_name="pl-4".to_owned()
                                 validation_errors
-                                set_validation_errors
-                                form_data={Task::default()}
                                 options=priorities.unwrap_or_default()
                                 not_selected_text="Не выбран".to_owned()
                                 value=task.priority.unwrap_or_default()
@@ -126,8 +134,6 @@ pub fn TaskEditForm(
                         name="task[title]".to_owned()
                         placeholder="Название".to_owned()
                         validation_errors
-                        set_validation_errors
-                        form_data={Task::default()}
                         value=task.title.unwrap_or_default()
                     />
                 </div>

@@ -1,27 +1,17 @@
 use std::collections::HashMap;
 
 use leptos::prelude::*;
-use serde::{Deserialize, Serialize};
-use std::fmt::Debug;
-use validator::Validate;
 
-use crate::common::validate_helper::{
-    extract_form_field_name, ui_extract_field_errors, validate_field_value,
-};
+use crate::common::validate_helper::{extract_form_field_name, ui_extract_field_errors};
 
 #[component]
-pub fn TextWithError<T>(
+pub fn TextWithError(
     name: String,
     placeholder: String,
     input_type: String,
     #[prop(optional)] value: String,
     validation_errors: Signal<HashMap<String, Vec<String>>>,
-    set_validation_errors: WriteSignal<HashMap<String, Vec<String>>>,
-    form_data: T,
-) -> impl IntoView
-where
-    T: Validate + Clone + Debug + Default + Serialize + for<'a> Deserialize<'a> + 'static,
-{
+) -> impl IntoView {
     view! {
         <div class="control">
             <input
@@ -32,13 +22,6 @@ where
                 name=name.to_owned()
                 value=value
                 placeholder=placeholder
-                on:input={
-                    let field_name = extract_form_field_name(name.to_owned());
-                    move |event| {
-                        let value = event_target_value(&event);
-                        set_validation_errors.write().insert(field_name.to_owned(), validate_field_value(field_name.to_owned(), value, form_data.clone()));
-                    }
-                }
             />
         </div>
 
