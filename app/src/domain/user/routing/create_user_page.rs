@@ -2,10 +2,9 @@ use std::collections::HashMap;
 
 use leptos::prelude::*;
 use validator::Validate;
-use web_sys::HtmlInputElement;
 
 use crate::common::validate_helper::{
-    extract_form_field_name, ui_build_common_error, ui_build_validation_errors, validate_field_value, validation_errors_to_map
+    ui_build_common_error, ui_build_validation_errors, validate_form, validation_errors_to_map
 };
 use crate::components::layout::message_banner::{Messages, show_info};
 use crate::components::ui::button::Button;
@@ -51,9 +50,7 @@ pub fn CreateUserPage() -> impl IntoView {
                     }
                 }
                 on:input=move |event| {
-                        let target = event_target::<HtmlInputElement>(&event);
-                        let field_name = extract_form_field_name(target.name().to_owned());
-                        set_validation_errors.write().insert(field_name.to_owned(), validate_field_value(field_name.to_owned(), target.value(), CreateUserParams::default()));
+                        validate_form(event, set_validation_errors, CreateUserParams::default());
                         create_user.clear();                    
                     }
             >

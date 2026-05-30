@@ -3,13 +3,13 @@ use std::{
     collections::{BTreeMap, HashMap},
 };
 
-use leptos::reactive::wrappers::read::Signal;
+use leptos::{reactive::{signal::WriteSignal, traits::Write, wrappers::read::Signal}, tachys::dom::event_target};
 use leptos::server_fn::ServerFnError;
 use leptos::{leptos_dom::logging::console_log, reactive::traits::Read};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use std::fmt::Debug;
 use validator::{Validate, ValidationError, ValidationErrors, ValidationErrorsKind};
+use web_sys::{Event, HtmlInputElement};
 
 pub fn ui_build_validation_errors<T>(
     error: &Option<Result<T, ServerFnError>>,
@@ -143,7 +143,7 @@ pub fn transform_error_message(field_err: &ValidationError) -> Option<Cow<'stati
 
 pub fn validate_field_value<T>(field_name: String, value: String, form_data: T) -> Vec<String>
 where
-    T: Validate + Clone + Debug + Default + Serialize + for<'a> Deserialize<'a> + 'static,
+    T: Validate + Clone + Default + Serialize + for<'a> Deserialize<'a> + 'static,
 {
     let default_value = serde_json::to_value(form_data.clone()).unwrap();
     let mut default_map: HashMap<String, serde_json::Value> =
@@ -195,4 +195,19 @@ pub fn validation_errors_kind_to_list(errors_kind: &ValidationErrorsKind) -> Vec
             .collect::<Vec<String>>(),
         _ => Vec::new(),
     }
+}
+
+pub fn validate_form<T>(
+    event: Event,
+    set_validation_errors: WriteSignal<HashMap<String, Vec<String>>>,
+    form_data: T,
+) where
+    T: Validate + Clone + Default + Serialize + for<'a> Deserialize<'a> + 'static,
+{
+    let target = event_target::<HtmlInputElement>(&event);
+    let field_name = extract_form_field_name(target.name().to_owned());
+    set_validation_errors.write().insert(
+        field_name.to_owned(),
+        validate_field_value(field_name.to_owned(), target.value(), form_data.clone()),
+    );
 }
