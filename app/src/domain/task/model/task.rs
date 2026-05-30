@@ -10,7 +10,7 @@ pub struct Task {
     #[validate(required, length(min = 3))]
     pub title: Option<String>,
     pub description: Option<String>,
-    #[validate(required)]
+    #[validate(required, length(min = 1, code = "required"))]
     pub priority: Option<String>,
     pub completed_at: Option<String>,
 }

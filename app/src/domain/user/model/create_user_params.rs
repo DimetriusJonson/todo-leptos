@@ -3,7 +3,7 @@ use std::sync::OnceLock;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
-#[derive(Debug, Clone, Serialize, Deserialize, Validate)]
+#[derive(Debug, Clone, Serialize, Deserialize, Validate, Default)]
 pub struct CreateUserParams {
     pub version: usize,
 

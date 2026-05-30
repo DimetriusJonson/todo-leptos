@@ -9,7 +9,6 @@ axum = { version = "0.8", features = ["macros"] }
 axum-macros = "0.4"
 axum-extra = { version = "0.12.6", features = ["cookie"] }
 console_error_panic_hook = "0.1"
-console_log = "1"
 dotenv = "0.15"
 http = "1"
 leptos = { version = "0.8" }

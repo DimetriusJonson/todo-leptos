@@ -1,14 +1,16 @@
 use std::collections::HashMap;
 
 use leptos::prelude::*;
+use validator::Validate;
 
 use crate::common::validate_helper::{
-    ui_build_common_error, ui_build_validation_errors, ui_extract_field_errors,
+    ui_build_common_error, ui_build_validation_errors, validation_errors_to_map,
 };
 use crate::components::layout::message_banner::{Messages, show_info};
 use crate::components::ui::button::Button;
 use crate::components::ui::main_title::MainTitle;
 use crate::components::ui::text_with_error::TextWithError;
+use crate::domain::user::model::create_user_params::CreateUserParams;
 use crate::domain::user::user_services::CreateUser;
 
 #[component]
@@ -17,8 +19,13 @@ pub fn CreateUserPage() -> impl IntoView {
 
     let messages = use_context::<Messages>().expect("Cant get messages context!");
 
-    let validation_errors: Signal<HashMap<String, Vec<String>>> =
-        Signal::derive(move || create_user.value().with(ui_build_validation_errors));
+    let (errors, set_validation_errors) = signal(HashMap::<String, Vec<String>>::new());
+
+    let validation_errors: Signal<HashMap<String, Vec<String>>> = Signal::derive(move || {
+        let mut result = errors.get();
+        result.extend(create_user.value().with(ui_build_validation_errors));
+        result
+    });
     let common_error = move || ui_build_common_error(validation_errors);
 
     Effect::new(move |_| {
@@ -31,23 +38,38 @@ pub fn CreateUserPage() -> impl IntoView {
     view! {
         <div class="container p-4">
             <MainTitle title=|| "Создать пользователя".to_owned() />
-            <ActionForm action=create_user>
+            <ActionForm action=create_user on:input=move |_| {create_user.clear()} on:submit:capture=move |event| {
+                if let Ok(params) = CreateUser::from_event(&event) {
+                    if let Err(validation_errors) = params.validate() {
+                        set_validation_errors.set(validation_errors_to_map(validation_errors));
+                        event.prevent_default();
+                    }
+                } else {
+                    event.prevent_default();
+                }
+            }>
                 <input name="params[version]" type="hidden" value={move || create_user.version().get()} />
 
                 <div class="help is-danger is-size-5 py-4">{common_error}</div>
 
                 <fieldset disabled=create_user.pending()>
                     <div class="field">
-                        <TextWithError input_type="text".to_owned() name="params[name]".to_owned()
+                        <TextWithError
+                            input_type="text".to_owned()
+                            name="params[name]".to_owned()
                             placeholder="Имя пользователя".to_owned()
-                            errors=move || ui_extract_field_errors("name", validation_errors)
+                            validation_errors
+                            set_validation_errors
+                            form_data={CreateUserParams::default()}
                         />
                     </div>
 
                     <div class="field">
                         <TextWithError input_type="password".to_owned() name="params[password]".to_owned()
                             placeholder="Пароль".to_owned()
-                            errors=move || ui_extract_field_errors("password", validation_errors)
+                            validation_errors
+                            set_validation_errors
+                            form_data={CreateUserParams::default()}
                         />
                     </div>
 

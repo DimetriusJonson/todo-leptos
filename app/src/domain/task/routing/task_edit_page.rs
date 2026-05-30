@@ -1,17 +1,19 @@
 use std::collections::HashMap;
 
+use leptos::leptos_dom::logging::console_log;
 use leptos::prelude::*;
 use leptos_router::hooks::use_params_map;
+use validator::Validate;
 
 use crate::common::validate_helper::{
-    ui_build_common_error, ui_build_validation_errors, ui_extract_field_errors,
+    ui_build_common_error, ui_build_validation_errors, validation_errors_to_map,
 };
 use crate::components::layout::message_banner::{Messages, show_info};
 use crate::components::ui::button::Button;
 use crate::components::ui::button_link::ButtonLink;
 use crate::components::ui::checkbox_with_label::CheckboxWithLabel;
 use crate::components::ui::main_title::MainTitle;
-use crate::components::ui::select_with_label::SelectWithLabel;
+use crate::components::ui::select_with_error::SelectWithError;
 use crate::components::ui::text_area::TextArea;
 use crate::components::ui::text_with_error::TextWithError;
 use crate::domain::home::routing::routes::HomeRoutes;
@@ -22,12 +24,11 @@ use crate::domain::task::task_services::{UpdateOrCreateTask, get_priorities, get
 #[component]
 pub fn TaskEditPage() -> impl IntoView {
     let params = use_params_map();
-    //    let id = move || params.read().get("id").unwrap_or_default().parse::<i64>().ok();
-    //    let id = move || /*params.read().get("id").unwrap_or_default().parse::<i64>().ok()*/Some(1);
-   // let id = move || params.read().get("id");
 
-    let task_resource =
-        Resource::new_blocking(move || params.read().get("id"), async move |id| get_task(id.unwrap_or_default().parse().unwrap_or(0)).await);
+    let task_resource = Resource::new_blocking(
+        move || params.read().get("id"),
+        async move |id| get_task(id.unwrap_or_default().parse().unwrap_or(0)).await,
+    );
     let priorities_resource = OnceResource::new(get_priorities());
 
     view! {
@@ -57,8 +58,13 @@ pub fn TaskEditForm(
 ) -> impl IntoView {
     let update_or_create_task = ServerAction::<UpdateOrCreateTask>::new();
 
-    let validation_errors: Signal<HashMap<String, Vec<String>>> =
-        Signal::derive(move || update_or_create_task.value().with(ui_build_validation_errors));
+    let (errors, set_validation_errors) = signal(HashMap::<String, Vec<String>>::new());
+
+    let validation_errors: Signal<HashMap<String, Vec<String>>> = Signal::derive(move || {
+        let mut result = errors.get();
+        result.extend(update_or_create_task.value().with(ui_build_validation_errors));
+        result
+    });
     let common_error = move || ui_build_common_error(validation_errors);
 
     let messages = use_context::<Messages>().expect("Cant get messages context!");
@@ -71,7 +77,19 @@ pub fn TaskEditForm(
     });
 
     view! {
-        <ActionForm action=update_or_create_task>
+        <ActionForm action=update_or_create_task on:input=move |_| {update_or_create_task.clear()} on:submit:capture=move |event| {
+                if let Ok(data) = UpdateOrCreateTask::from_event(&event) {
+                    if let Some(task) = data.task {
+                        if let Err(validation_errors) = task.validate() {
+                            set_validation_errors.set(validation_errors_to_map(validation_errors));
+                            event.prevent_default();
+                        } else {
+                            return;
+                        }
+                    }
+                }
+                event.prevent_default();
+            }>
             <input type="hidden" name="task[id]" value=task.id />
 
             <div class="help is-danger is-size-5 py-4">{common_error}</div>
@@ -80,11 +98,13 @@ pub fn TaskEditForm(
                 <div class="level">
                     <div class="level-left">
                         <div class="level-item">
-                            <SelectWithLabel
+                            <SelectWithError
                                 name="task[priority]".to_owned()
                                 label="Приоритет:".to_owned()
                                 error_class_name="pl-4".to_owned()
-                                errors=move || ui_extract_field_errors("priority", validation_errors)
+                                validation_errors
+                                set_validation_errors
+                                form_data={Task::default()}
                                 options=priorities.unwrap_or_default()
                                 not_selected_text="Не выбран".to_owned()
                                 value=task.priority.unwrap_or_default()
@@ -109,7 +129,9 @@ pub fn TaskEditForm(
                         input_type="text".to_owned()
                         name="task[title]".to_owned()
                         placeholder="Название".to_owned()
-                        errors=move || ui_extract_field_errors("title", validation_errors)
+                        validation_errors
+                        set_validation_errors
+                        form_data={Task::default()}
                         value=task.title.unwrap_or_default()
                     />
                 </div>
