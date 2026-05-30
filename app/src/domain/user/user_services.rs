@@ -1,6 +1,5 @@
 use leptos::server;
 use leptos::server_fn::ServerFnError;
-use leptos::server_fn::codec::{GetUrl, Json, PostUrl};
 
 use crate::domain::user::model::create_user_params::CreateUserParams;
 use crate::domain::user::model::login_params::LoginParams;
@@ -88,7 +87,7 @@ pub mod ssr {
     }
 }
 
-#[server(CreateUser, "/api", input = PostUrl, output = Json)]
+#[server]
 pub async fn create_user(params: CreateUserParams) -> Result<User, ServerFnError> {
     use bcrypt::DEFAULT_COST;
     use validator::Validate;
@@ -136,7 +135,7 @@ pub async fn create_user(params: CreateUserParams) -> Result<User, ServerFnError
     Ok(user)
 }
 
-#[server(Login, "/api", input = PostUrl, output = Json)]
+#[server]
 pub async fn login(params: LoginParams) -> Result<User, ServerFnError> {
     use axum::http::HeaderValue;
     use axum::http::header::SET_COOKIE;
@@ -191,7 +190,7 @@ pub async fn login(params: LoginParams) -> Result<User, ServerFnError> {
     }
 }
 
-#[server(AuthData, "/api", input = GetUrl, output = Json)]
+#[server]
 pub async fn auth_data() -> Result<User, ServerFnError> {
     use axum_extra::extract::CookieJar;
     use leptos_axum::extract;
@@ -215,7 +214,7 @@ pub async fn auth_data() -> Result<User, ServerFnError> {
     Ok(User::default())
 }
 
-#[server(Logout, "/api", input = PostUrl, output = Json)]
+#[server]
 pub async fn logout() -> Result<bool, ServerFnError> {
     use axum::http::HeaderValue;
     use axum::http::header::SET_COOKIE;

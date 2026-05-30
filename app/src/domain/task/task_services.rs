@@ -1,11 +1,10 @@
 use leptos::server;
 use leptos::server_fn::ServerFnError;
-use leptos::server_fn::codec::{GetUrl, Json, PostUrl};
 
 use crate::components::ui::select_input::SelectOption;
 use crate::domain::task::model::task::Task;
 
-#[server(GetTask, "/api", input = GetUrl, output = Json)]
+#[server]
 pub async fn get_task(id: i64) -> Result<Task, ServerFnError> {
     use super::task_db::db::*;
     use crate::common::app_state::ssr::*;
@@ -25,7 +24,7 @@ pub async fn get_task(id: i64) -> Result<Task, ServerFnError> {
     Ok(Task::default())
 }
 
-#[server(DeleteTask, "/api", input = PostUrl, output = Json)]
+#[server]
 pub async fn delete_task(id: i64) -> Result<bool, ServerFnError> {
     use super::task_db::db::*;
     use crate::common::app_state::ssr::*;
@@ -43,7 +42,7 @@ pub async fn delete_task(id: i64) -> Result<bool, ServerFnError> {
     Ok(false)
 }
 
-#[server(GetTasks, "/api", input = PostUrl, output = Json)]
+#[server]
 pub async fn get_tasks(
     filter: Option<String>,
     sort_kind: Option<String>,
@@ -73,7 +72,7 @@ pub async fn get_tasks(
     Ok(vec![])
 }
 
-#[server(UpdateOrCreateTask, "/api", input = PostUrl, output = Json)]
+#[server]
 pub async fn update_or_create_task(task: Option<Task>) -> Result<Task, ServerFnError> {
     use validator::Validate;
 
@@ -126,7 +125,7 @@ pub async fn update_or_create_task(task: Option<Task>) -> Result<Task, ServerFnE
     Ok(task.unwrap_or_default())
 }
 
-#[server(ChangeCompletedTask, "/api", input = PostUrl, output = Json)]
+#[server]
 pub async fn change_completed_task(id: i64, completed: bool) -> Result<Task, ServerFnError> {
     use super::task_db::db::*;
     use crate::common::app_state::ssr::*;
@@ -155,7 +154,7 @@ pub async fn change_completed_task(id: i64, completed: bool) -> Result<Task, Ser
     Ok(Task::default())
 }
 
-#[server(GetPriorities, "/api", input = GetUrl, output = Json)]
+#[server]
 pub async fn get_priorities() -> Result<Vec<SelectOption>, ServerFnError> {
     Ok(vec![
         (Some("C".to_owned()), Task::priority_by_name("C")),
