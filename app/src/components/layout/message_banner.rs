@@ -36,13 +36,39 @@ pub fn MessageBanner() -> impl IntoView {
             style:width="100%"
             style:z-index="1000"
         >
-            {move || messages.0.get().into_iter()
+            {
+                move || messages.0.get().into_iter()
                 .map(|msg| {
                     let msg_state = msg.state.clone();
+
                     view! {
-                        <p class="field message-box"
+                        <p id={format!("m_{}", msg.id)}
+                            class="field message-box"
                             class:messagebanner=move || msg_state == MessageBannerState::InHide
                             class:messagebanner-show=move || msg.state == MessageBannerState::InShow
+                            on:transitionend= move |event| {
+                                let id_str = event_target::<HtmlElement>(&event).id().to_string();
+                                if let Some(pos) = id_str.find('_') {
+                                    let id = &id_str[pos + 1..];
+                                    let mut need_delete = false;
+                                    for msg in messages.0.write().iter_mut() {
+                                        if msg.id == id {
+                                            match msg.state {
+                                                MessageBannerState::InShow => msg.state = MessageBannerState::None,
+                                                MessageBannerState::InHide => need_delete = true,
+                                                MessageBannerState::None => (),
+                                            }
+                                            break;
+                                        }
+                                    }
+
+                                    if need_delete {
+                                        let mut new_list = messages.0.get();
+                                        new_list.retain(|m| m.id != msg.id);
+                                        messages.0.set(new_list);
+                                    }
+                                }
+                            }
                         >
                             <span class={format!("tag is-medium {}", msg_style(&msg))}>
                                 {msg.msg.to_owned()}
@@ -100,40 +126,21 @@ fn show_message(msg: String, kind: String, active_time: Duration, messages: Mess
             for msg in messages.0.write().iter_mut() {
                 if msg.id == cloned_id_2 {
                     msg.state = MessageBannerState::InShow;
+                    break;
                 }
             }
         },
         Duration::from_millis(50),
     );
-
-    set_timeout(
-        move || {
-            for msg in messages.0.write().iter_mut() {
-                if msg.id == id {
-                    msg.state = MessageBannerState::None;
-                }
-            }
-        },
-        Duration::from_millis(350),
-    );
 }
 
 fn remove_message(id: &str, messages: Messages) {
-    let cloned_id = id.to_owned();
     for msg in messages.0.write().iter_mut() {
         if msg.id == id {
             msg.state = MessageBannerState::InHide;
+            break;
         }
     }
-
-    set_timeout(
-        move || {
-            let mut new_list = messages.0.get();
-            new_list.retain(|m| m.id != cloned_id);
-            messages.0.set(new_list);
-        },
-        Duration::from_millis(300),
-    );
 }
 
 fn msg_style(msg: &MessageBannerItem) -> String {
