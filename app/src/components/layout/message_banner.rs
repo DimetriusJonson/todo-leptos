@@ -41,8 +41,8 @@ pub fn MessageBanner() -> impl IntoView {
                     let msg_state = msg.state.clone();
                     view! {
                         <p class="field message-box"
-                            class:messagebox=move || msg_state == MessageBannerState::InHide
-                            class:messagebox-show=move || msg.state == MessageBannerState::InShow
+                            class:messagebanner=move || msg_state == MessageBannerState::InHide
+                            class:messagebanner-show=move || msg.state == MessageBannerState::InShow
                         >
                             <span class={format!("tag is-medium {}", msg_style(&msg))}>
                                 {msg.msg.to_owned()}
@@ -103,7 +103,7 @@ fn show_message(msg: String, kind: String, active_time: Duration, messages: Mess
                 }
             }
         },
-        Duration::from_millis(1),
+        Duration::from_millis(50),
     );
 
     set_timeout(
@@ -114,7 +114,7 @@ fn show_message(msg: String, kind: String, active_time: Duration, messages: Mess
                 }
             }
         },
-        Duration::from_millis(300),
+        Duration::from_millis(350),
     );
 }
 

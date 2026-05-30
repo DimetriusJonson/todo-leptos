@@ -15,12 +15,12 @@
 	--bulma-danger-l: 60%;
 }
 
-.messagebox {
+.messagebanner {
   transform: scale(0); 
   transition: transform 0.3s ease-in-out; 
 }
 
-.messagebox-show {
+.messagebanner-show {
   transition: transform 0.3s ease-in-out; 
   transform: scale(1);  
 }
