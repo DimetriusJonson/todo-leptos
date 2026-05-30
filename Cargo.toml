@@ -33,7 +33,6 @@ jsonwebtoken = { version = "10.3.0", features = ["rust_crypto"] }
 chrono = { version = "0.4.44", features = ["serde"] }
 bcrypt = { version = "0.19.0" }
 dotenvy = { version = "0.15.7" }
-regex = "1.12.3"
 
 
 [[workspace.metadata.leptos]]

@@ -19,7 +19,6 @@ web-sys.workspace = true
 validator.workspace = true
 serde.workspace = true
 serde_json.workspace = true
-regex.workspace = true
 
 chrono = { workspace = true, optional = true }
 tracing = { workspace = true, optional = true }
