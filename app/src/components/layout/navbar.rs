@@ -10,7 +10,7 @@ use crate::domain::user::user_services::{Logout, auth_data};
 
 #[component]
 pub fn Navbar() -> impl IntoView {
-    let (nav_links_active, set_nav_links_active) = signal(true);
+    let (nav_links_active, set_nav_links_active) = signal(false);
 
     let messages = use_context::<Messages>().expect("Cant get messages context!");
 
@@ -23,8 +23,6 @@ pub fn Navbar() -> impl IntoView {
     provide_context(user_resource);
 
     Effect::new(move |_| {
-        set_nav_links_active.set(false);
-
         if let Some(Ok(_)) = logout.value().get() {
             show_info("Вы вышли!".to_owned(), messages);
             logout.clear();
@@ -54,7 +52,7 @@ pub fn Navbar() -> impl IntoView {
 
             <div
                 class:is-active=move || nav_links_active.get()
-                class={"navbar-menu"}
+                class={"navbar-menu no-script-navbar-menu"}
                 id="nav-links"
             >
                 <div class="navbar-start">
@@ -106,6 +104,17 @@ pub fn Navbar() -> impl IntoView {
                 </div>
             </div>
         </nav>
+
+        <noscript>
+            <style>
+                r#"
+                .no-script-navbar-menu {
+                    display: block;
+                }
+                "#
+            </style>
+        </noscript>
+
 
     }
 }
