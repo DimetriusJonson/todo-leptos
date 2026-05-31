@@ -2,6 +2,8 @@ use axum::body::Body;
 use axum::extract::State;
 use axum::http::{Request, Response, StatusCode, Uri};
 use axum::response::{IntoResponse, Response as AxumResponse};
+use http::HeaderValue;
+use http::header::CACHE_CONTROL;
 use leptos::prelude::*;
 use tower::ServiceExt;
 use tower_http::services::ServeDir;
@@ -14,9 +16,11 @@ pub async fn file_and_error_handler(
     req: Request<Body>,
 ) -> AxumResponse {
     let root = options.site_root.clone();
-    let res = get_static_file(uri.clone(), &root).await.unwrap();
+    let mut res = get_static_file(uri.clone(), &root).await.unwrap();
 
     if res.status() == StatusCode::OK {
+        let cache_control_value = HeaderValue::from_static("public, max-age=0, must-revalidate");
+        res.headers_mut().insert(CACHE_CONTROL, cache_control_value);
         res.into_response()
     } else {
         let mut errors = Errors::default();

@@ -30,12 +30,10 @@ pub async fn build_app_router(conf_file: ConfFile, pool: DbPool) -> anyhow::Resu
 
     let routes = generate_route_list(|| view! { <App /> });
 
-    let app_state = AppState { leptos_options, pool: pool.clone() };
+    let app_state = AppState { leptos_options: leptos_options.clone(), pool: pool.clone() };
 
     Ok(Router::new()
-        //.fallback_service(static_service)
         .route("/api/{*fn_name}", get(server_fn_handler).post(server_fn_handler))
-        // .layer(PropertyAccessLayer::new()) // custom middleware for properties
         .leptos_routes_with_handler(routes, get(leptos_routes_handler))
         .route_layer(middleware::from_fn_with_state(app_state.clone(), check_auth_token))
         .fallback(file_and_error_handler)
