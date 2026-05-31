@@ -21,9 +21,9 @@ pub fn SelectWithError(
 ) -> impl IntoView {
     view! {
             <label class="label mx-2" for=name.to_owned()>
-                {label}
+                {label.to_owned()}
             </label>
-            <SelectInput name={name.to_owned()} not_selected_text=not_selected_text options=options value=value on_change=on_change
+            <SelectInput label={label} name={name.to_owned()} not_selected_text=not_selected_text options=options value=value on_change=on_change
             />
 
         {

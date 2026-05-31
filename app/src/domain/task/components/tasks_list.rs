@@ -91,6 +91,7 @@ pub fn TasksList(filter: ReadSignal<Option<String>>) -> impl IntoView {
                                                 <Checkbox
                                                     class_name="is-medium".to_owned()
                                                     name=format!("completed_{}", task.id.unwrap())
+                                                    label="Изменить признак завершения".to_owned()
                                                     value=task.completed_at.is_some()
                                                     title=match &task.completed_at {
                                                         Some(completed_at) => completed_at.to_owned(),

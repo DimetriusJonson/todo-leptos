@@ -29,12 +29,6 @@ pub fn TasksPanel() -> impl IntoView {
     let filter_options_resource = OnceResource::new(get_filter_options());
     let sort_options_resource = OnceResource::new(get_sort_options());
 
-    let (show_filter_submit, set_show_filter_submit) = signal(true);
-
-    Effect::new(move |_| {
-        set_show_filter_submit.set(false);
-    });
-
     view! {
         <div class="container is-size-7-mobile pt-5">
             <div class="buttons is-justify-content-space-between px-2 pb-5">
@@ -48,6 +42,7 @@ pub fn TasksPanel() -> impl IntoView {
                                         <SelectInput
                                             class_name="is-size-7-mobile".to_owned()
                                             name="filter".to_owned()
+                                            label="Фильтр".to_owned()
                                             not_selected_text="Фильтр".to_owned()
                                             options=filter_options.unwrap()
                                             on_change=move |value: String| {
@@ -58,6 +53,7 @@ pub fn TasksPanel() -> impl IntoView {
                                         <SelectInput
                                             class_name="is-size-7-mobile pl-2".to_owned()
                                             name="sort_kind".to_owned()
+                                            label="Сортировка".to_owned()
                                             not_selected_text="Сортировка".to_owned()
                                             options=sort_options.unwrap()
                                             on_change=move |value: String| {
@@ -68,7 +64,7 @@ pub fn TasksPanel() -> impl IntoView {
                                             }
                                         />
 
-                                        <Show when=move || show_filter_submit.get()>
+                                        <noscript>
                                             <Button
                                                 class_name="is-light is-size-7-mobile mx-4".to_owned()
                                                 label="Ok".to_owned()
@@ -76,7 +72,7 @@ pub fn TasksPanel() -> impl IntoView {
                                                 on_click=move |_| {}
                                                 disabled=||false
                                             />
-                                        </Show>
+                                        </noscript>
 
 
                                     </Form>
