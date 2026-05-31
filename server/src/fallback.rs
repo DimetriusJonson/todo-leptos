@@ -19,7 +19,7 @@ pub async fn file_and_error_handler(
     let mut res = get_static_file(uri.clone(), &root).await.unwrap();
 
     if res.status() == StatusCode::OK {
-        let cache_control_value = HeaderValue::from_static("public, max-age=0, must-revalidate");
+        let cache_control_value = HeaderValue::from_static("public, immutable, max-age=31536000");
         res.headers_mut().insert(CACHE_CONTROL, cache_control_value);
         res.into_response()
     } else {
