@@ -44,7 +44,7 @@ pub fn App() -> impl IntoView {
     view! {
         // injects a stylesheet into the document <head>
         // id=leptos means cargo-leptos will hot-reload this stylesheet
-        <Stylesheet id="bulma" href="bulma.min.css" />
+        <Stylesheet id="bulma" href="/bulma.min.css" />
         <Stylesheet id="leptos" href="/pkg/todo_leptos.css" />
 
         <Title text="TODO"/>
