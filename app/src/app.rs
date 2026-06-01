@@ -47,9 +47,9 @@ pub fn App() -> impl IntoView {
         <Stylesheet id="bulma" href="/bulma.min.css" />
         <Stylesheet id="leptos" href="/pkg/todo_leptos.css" />
 
-        <Title text="TODO"/>
-        <Meta name="keywords" content="todo, svelte, web application, development" />
-        <Meta name="description" content="Пример приложения списка дел (TODO) с использованием фреймворка SvelteKit." />
+        <Title text="TODO leptos app"/>
+        <Meta name="keywords" content="todo, leptos, rust, web application, development" />
+        <Meta name="description" content="Пример приложения списка дел (TODO) с использованием языка программирования Rust и фреймворка Leptos." />
 
         <Router set_is_routing>
 
