@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use leptos::prelude::*;
-use leptos_meta::{MetaTags, Stylesheet, Title, provide_meta_context};
+use leptos_meta::{Meta, MetaTags, Stylesheet, Title, provide_meta_context};
 use leptos_router::components::{Outlet, ParentRoute, Route, Router, Routes, RoutingProgress};
 use leptos_router::{StaticSegment, path};
 
@@ -48,6 +48,8 @@ pub fn App() -> impl IntoView {
         <Stylesheet id="leptos" href="/pkg/todo_leptos.css" />
 
         <Title text="TODO"/>
+        <Meta name="keywords" content="todo, svelte, web application, development" />
+        <Meta name="description" content="Пример приложения списка дел (TODO) с использованием фреймворка SvelteKit." />
 
         <Router set_is_routing>
 
