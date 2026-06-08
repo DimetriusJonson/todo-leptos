@@ -225,12 +225,12 @@ pub async fn logout() -> Result<bool, ServerFnError> {
     use crate::domain::home::routing::routes::HomeRoutes;
     use crate::domain::user::user_db::db::*;
 
-    if get_current_user(false).await?.is_some() {
+    if let Some(user) = get_current_user(false).await? {
         let response_options = use_context::<leptos_axum::ResponseOptions>().unwrap();
 
         let app_state = use_app_state()?;
 
-        update_user_in_db(&app_state.pool, &User { token: None, ..Default::default() })
+        update_user_in_db(&app_state.pool, &User { id: user.id, token: None, ..Default::default() })
             .await
             .map_err(ServerFnError::new)?;
 
