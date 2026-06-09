@@ -10,7 +10,6 @@ use tracing_subscriber::{EnvFilter, FmtSubscriber};
 
 mod app_router;
 mod db;
-mod fallback;
 
 use app_router::build_app_router::build_app_router;
 

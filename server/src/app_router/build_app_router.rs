@@ -19,8 +19,6 @@ use leptos_axum::{
 use tower_http::compression::CompressionLayer;
 use tower_http::trace::TraceLayer;
 
-use crate::fallback::file_and_error_handler;
-
 /* ========================================================== */
 /*                         🦀 MAIN 🦀                         */
 /* ========================================================== */
@@ -36,7 +34,7 @@ pub async fn build_app_router(conf_file: ConfFile, pool: DbPool) -> anyhow::Resu
         .route("/api/{*fn_name}", get(server_fn_handler).post(server_fn_handler))
         .leptos_routes_with_handler(routes, get(leptos_routes_handler))
         .route_layer(middleware::from_fn_with_state(app_state.clone(), check_auth_token))
-        .fallback(file_and_error_handler)
+        .fallback(leptos_axum::file_and_error_handler::<AppState, _>(shell))
         .layer(CompressionLayer::new().gzip(true))
         .layer(TraceLayer::new_for_http())
         .with_state(app_state))
