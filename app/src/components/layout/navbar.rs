@@ -31,6 +31,17 @@ pub fn Navbar() -> impl IntoView {
     });
 
     view! {
+
+        <style lang="css">
+            r#"
+                @media (scripting: none) {
+                    .no-script-navbar-menu {
+                        display: block;
+                    }
+                }
+            "#
+        </style>
+
         <nav class="navbar is-primary" aria-label="main navigation">
             <div class="navbar-brand">
                 <a
@@ -105,17 +116,6 @@ pub fn Navbar() -> impl IntoView {
                 </div>
             </div>
         </nav>
-
-        <noscript>
-            <style>
-                r#"
-                .no-script-navbar-menu {
-                    display: block;
-                }
-                "#
-            </style>
-        </noscript>
-
 
     }
 }
