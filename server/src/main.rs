@@ -15,8 +15,8 @@ use app_router::build_app_router::build_app_router;
 
 use crate::db::create_pool;
 
-//#[tokio::main(flavor = "multi_thread")]
-#[tokio::main(flavor = "current_thread")]
+#[tokio::main(flavor = "multi_thread")]
+//#[tokio::main(flavor = "current_thread")]
 async fn main() -> anyhow::Result<()> {
     let environment = env::var("APP_ENV").unwrap_or_else(|_| "dev".to_string());
     let env_file_name = format!(".env.{}", environment);
