@@ -1,6 +1,7 @@
 use leptos::server;
 use leptos::server_fn::ServerFnError;
 
+use crate::common::api_error::ApiError;
 use crate::components::ui::select_input::SelectOption;
 use crate::domain::task::model::task::Task;
 
@@ -15,10 +16,13 @@ pub async fn get_task(id: i64) -> Result<Task, ServerFnError> {
     if let Some(user) = get_current_user(true).await? {
         let app_state = use_app_state()?;
 
-        let task =
-            get_task_from_db(&app_state.pool, id, user.id).await.map_err(ServerFnError::new)?;
-
-        return Ok(task.unwrap_or_default());
+        if let Some(task) =
+            get_task_from_db(&app_state.pool, id, user.id).await.map_err(ServerFnError::new)?
+        {
+            return Ok(task);
+        } else {
+            return Err(ApiError::NotFound("Задача не найдена!".to_owned()))?;
+        }
     }
 
     Ok(Task::default())
@@ -123,7 +127,6 @@ pub async fn update_or_create_task(task: Task) -> Result<Task, ServerFnError> {
 pub async fn change_completed_task(id: i64, completed: bool) -> Result<Task, ServerFnError> {
     use super::task_db::db::*;
     use crate::common::app_state::ssr::*;
-    use crate::common::errors::AppError;
     use crate::domain::user::user_services::ssr::get_current_user;
 
     if let Some(user) = get_current_user(true).await? {
@@ -141,7 +144,7 @@ pub async fn change_completed_task(id: i64, completed: bool) -> Result<Task, Ser
                 .await
                 .map_err(ServerFnError::new);
         } else {
-            return Err(AppError::NotFound("Задача не найдена!".to_owned()))?;
+            return Err(ApiError::NotFound("Задача не найдена!".to_owned()))?;
         }
     }
 
